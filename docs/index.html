@@ -1,1 +1,157 @@
-hello
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title></title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Password Modal -->
+    <div class="modal-overlay" id="passwordModal">
+      <div class="modal-content">
+        <div class="language-selector">
+          <button
+            class="modal-language-button active"
+            data-lang="en"
+            id="modalLangEn"
+          >
+            EN
+          </button>
+          <button
+            class="modal-language-button"
+            data-lang="lt"
+            id="modalLangLt"
+          >
+            LT
+          </button>
+        </div>
+
+        <h2 class="modal-title" id="passwordModalTitle"></h2>
+        <p class="modal-subtitle" id="passwordModalSubtitle"></p>
+
+        <form id="passwordForm">
+          <input
+            type="password"
+            class="password-input"
+            id="passwordInput"
+            autocomplete="off"
+          />
+
+          <div class="error-message hidden" id="errorMessage"></div>
+
+          <button type="submit" class="modal-button" id="submitPassword">
+            <div class="loading-spinner hidden" id="passwordLoadingSpinner"></div>
+            <span id="submitPasswordLabel"></span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Video Modal -->
+    <div class="modal-overlay blur-background hidden" id="videoModal">
+      <div class="modal-content video-modal">
+        <h2 class="modal-title" id="videoModalTitle"></h2>
+        <p class="modal-subtitle" id="videoModalSubtitle"></p>
+
+        <div class="video-container">
+          <iframe
+            id="videoIframe"
+            width="1280"
+            height="720"
+            src=""
+            title="presentation"
+            frameborder="0"
+            allowfullscreen></iframe>
+          <!-- autoplay; fullscreen; picture-in-picture -->
+        </div>
+
+        <button class="modal-button" id="continueButton">
+          <span id="continueButtonLabel"></span>
+          <svg
+            class="export-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- NEW: Language warning modal -->
+    <div class="modal-overlay blur-background hidden" id="languageWarningModal">
+      <div class="modal-content">
+        <p class="modal-subtitle" id="languageWarningMessage"></p>
+        <button class="modal-button" id="languageWarningButton"></button>
+      </div>
+    </div>
+
+    <!-- Reopen Video Button -->
+    <button class="reopen-video-button hidden" id="reopenVideoButton">
+      <svg
+        class="video-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      </svg>
+      <span id="reopenVideoButtonLabel"></span>
+    </button>
+
+    <!-- Fixed sidebar background for print (no content) -->
+    <div class="sidebar-print-bg"></div>
+
+    <!-- Root where the CV will be rendered by JS -->
+    <div id="cv-root"></div>
+
+    <div class="floating-controls">
+      <!-- Language row -->
+      <div class="floating-language-row">
+        <button class="language-button" id="langEnButton">
+          <span id="langEnLabel"></span>
+        </button>
+        <button class="language-button" id="langLtButton">
+          <span id="langLtLabel"></span>
+        </button>
+      </div>
+
+      <!-- Export button -->
+      <button class="export-button" id="exportButton">
+        <svg
+          class="export-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+          ></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span id="exportLabel"></span>
+      </button>
+    </div>
+
+    <!-- Firebase SDKs (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <!-- Your Firebase config & helper -->
+    <script src="firebaseConfig.js"></script>
+
+    <!-- Translations & app logic -->
+    <script src="templateTranslations.js"></script>
+    <!-- contentTranslations.js is now in Firestore -->
+    <script src="app.js"></script>
+  </body>
+</html>
