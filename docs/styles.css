@@ -618,6 +618,17 @@ body {
     display: none !important;
   }
 
+  /* completely hide any modals / overlays in print */
+  .modal-overlay,
+  .modal-content,
+  #passwordModal,
+  #videoModal,
+  #languageWarningModal,
+  #iosExportInfoModal {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
   body {
     background: white;
     margin: 0 !important;

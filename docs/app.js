@@ -20,6 +20,17 @@ function createElement(tag, className, text) {
   return el;
 }
 
+function isIOSStandalone() {
+  const ua = window.navigator.userAgent || '';
+  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+  const isStandalone =
+    window.matchMedia &&
+    window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone;
+
+  return isIOS && isStandalone;
+}
+
 // --- Language / translations helpers ---
 
 function getAvailableLanguages() {
@@ -493,6 +504,10 @@ function updateModalTranslations() {
   const submitLabel = document.getElementById('submitPasswordLabel');
   const continueLabel = document.getElementById('continueButtonLabel');
   const reopenLabel = document.getElementById('reopenVideoButtonLabel');
+  //iOS export modal texts
+  const iosTitle = document.getElementById('iosExportTitle');
+  const iosSubtitle = document.getElementById('iosExportSubtitle');
+  const iosButtonLabel = document.getElementById('iosExportButtonLabel');
 
   if (passwordTitle) {
     passwordTitle.textContent = t.modalPasswordTitle;
@@ -523,6 +538,17 @@ function updateModalTranslations() {
   }
   if (videoSubtitle) {
     videoSubtitle.textContent = t.modalVideoSubtitle;
+  }
+
+  // iOS export modal texts
+  if (iosTitle) {
+    iosTitle.textContent = t.iosExportTitle || '';
+  }
+  if (iosSubtitle) {
+    iosSubtitle.textContent = t.iosExportSubtitle || '';
+  }
+  if (iosButtonLabel) {
+    iosButtonLabel.textContent = t.iosExportButton || 'OK';
   }
 }
 
@@ -592,7 +618,17 @@ function initButtons() {
   const ltBtn = document.getElementById('langLtButton');
 
   if (exportBtn) {
-    exportBtn.addEventListener('click', () => window.print());
+    exportBtn.addEventListener('click', () => {
+      // On iOS standalone (Home Screen app), window.print() often does nothing.
+      if (isIOSStandalone()) {
+        const modal = document.getElementById('iosExportInfoModal');
+        if (modal) {
+          modal.classList.remove('hidden');
+        }
+      } else {
+        window.print();
+      }
+    });
   }
 
   if (enBtn) enBtn.addEventListener('click', () => setLanguage('en'));
@@ -816,6 +852,19 @@ function initPasswordAndVideo() {
   updateModalLanguageButtonsUi();
 }
 
+function initExportModalClose() {
+  // Close iOS export info modal
+  const iosExportClose = document.getElementById('iosExportInfoClose');
+  if (iosExportClose) {
+    iosExportClose.addEventListener('click', () => {
+      const modal = document.getElementById('iosExportInfoModal');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+    });
+  }
+}
+
 // --- DOM ready ---
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -824,4 +873,5 @@ document.addEventListener('DOMContentLoaded', () => {
   updateModalTranslations();
   updateModalLanguageButtonsUi();
   initPasswordAndVideo();
+  initExportModalClose();
 });

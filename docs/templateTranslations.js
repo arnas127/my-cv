@@ -38,7 +38,13 @@ const TEMPLATE_TRANSLATIONS = {
 
     // Language warning modal
     languageWarningUnavailableMessage: 'English version is not available',
-    languageWarningUnavailableButton: 'Continue'
+    languageWarningUnavailableButton: 'Continue',
+
+    // iOS export modal
+    iosExportTitle: 'Save as PDF on iPhone',
+    iosExportSubtitle:
+      'On iPhone, use the browser\'s Share menu, choose Print, then zoom the preview and save or share it as a PDF.',
+    iosExportButton: 'OK',
   },
   lt: {
     // main CV content
@@ -78,6 +84,12 @@ const TEMPLATE_TRANSLATIONS = {
 
     // Language warning modal
     languageWarningUnavailableMessage: 'Lietuvių kalbos versija negalima',
-    languageWarningUnavailableButton: 'Tęsti'
+    languageWarningUnavailableButton: 'Tęsti',
+
+    // iOS export modal
+    iosExportTitle: 'PDF išsaugojimas iPhone telefone',
+    iosExportSubtitle:
+      'iPhone telefone naudokite naršyklės Bendrinimo meniu, pasirinkite Spausdinti, tada priartinkite peržiūrą ir išsaugokite arba pasidalykite ją kaip PDF.',
+    iosExportButton: 'Gerai',
   }
 };
