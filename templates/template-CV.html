@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern CV Template</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8f9fa;
+      color: #2d3748;
+      line-height: 1.6;
+    }
+    
+    .cv-container {
+      width: 100%;
+      min-height: 100%;
+      background: white;
+      display: flex;
+    }
+    
+    .sidebar {
+      width: 35%;
+      background: #1a365d;
+      padding: 48px 32px;
+      color: white;
+    }
+    
+    .main-content {
+      flex: 1;
+      padding: 48px 40px;
+    }
+    
+    .profile-section {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .profile-image {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 56px;
+      font-weight: 700;
+      color: white;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .name {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    
+    .job-title {
+      font-size: 16px;
+      color: #a0aec0;
+      font-weight: 500;
+    }
+    
+    .contact-section {
+      margin-top: 40px;
+    }
+    
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 20px;
+      color: #e2e8f0;
+    }
+    
+    .contact-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    
+    .contact-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    
+    .skills-section {
+      margin-top: 40px;
+    }
+    
+    .skill-item {
+      margin-bottom: 20px;
+    }
+    
+    .skill-name {
+      font-size: 14px;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    .skill-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .skill-progress {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    
+    .summary-section {
+      margin-bottom: 40px;
+    }
+    
+    .main-section-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #1a365d;
+      padding-bottom: 12px;
+      border-bottom: 3px solid #667eea;
+      display: inline-block;
+    }
+    
+    .summary-text {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #4a5568;
+    }
+    
+    .experience-section,
+    .education-section {
+      margin-bottom: 40px;
+    }
+    
+    .experience-item,
+    .education-item {
+      margin-bottom: 32px;
+      position: relative;
+      padding-left: 24px;
+    }
+    
+    .experience-item::before,
+    .education-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      background: #667eea;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 0 0 2px #667eea;
+    }
+    
+    .item-header {
+      margin-bottom: 8px;
+    }
+    
+    .item-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a365d;
+      margin-bottom: 4px;
+    }
+    
+    .item-subtitle {
+      font-size: 15px;
+      color: #667eea;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .item-date {
+      font-size: 13px;
+      color: #718096;
+      font-weight: 500;
+    }
+    
+    .item-description {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #4a5568;
+      margin-top: 12px;
+    }
+    
+    .item-description ul {
+      margin-left: 20px;
+      margin-top: 8px;
+    }
+    
+    .item-description li {
+      margin-bottom: 6px;
+    }
+    
+    .languages-section {
+      margin-top: 40px;
+    }
+    
+    .language-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .language-item:last-child {
+      border-bottom: none;
+    }
+    
+    .language-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .language-level {
+      font-size: 12px;
+      color: #a0aec0;
+      font-weight: 500;
+    }
+    
+    .export-button {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 50px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+    }
+    
+    .export-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.5);
+    }
+    
+    .export-button:active {
+      transform: translateY(0);
+    }
+    
+    .export-icon {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .page-break {
+      display: none;
+      position: relative;
+      margin: 20px 0;
+      padding: 12px 0;
+      text-align: center;
+      border: 2px dashed #cbd5e0;
+      border-radius: 8px;
+      background: #f7fafc;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .page-break:hover {
+      border-color: #667eea;
+      background: #edf2f7;
+    }
+    
+    .page-break-text {
+      font-size: 13px;
+      color: #718096;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .page-break-icon {
+      width: 18px;
+      height: 18px;
+    }
+    
+    .remove-break {
+      display: inline-block;
+      margin-left: 12px;
+      color: #e53e3e;
+      font-size: 12px;
+      text-decoration: underline;
+    }
+    
+    .show-breaks .page-break {
+      display: block;
+    }
+    
+    .page-break-placeholder {
+      display: none;
+      position: relative;
+      margin: 10px 0;
+      padding: 8px 0;
+      text-align: center;
+      border: 1px dashed #cbd5e0;
+      border-radius: 6px;
+      background: #f7fafc;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      opacity: 0.6;
+    }
+    
+    .page-break-placeholder:hover {
+      border-color: #667eea;
+      background: #edf2f7;
+      opacity: 1;
+    }
+    
+    .page-break-placeholder-text {
+      font-size: 12px;
+      color: #a0aec0;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    
+    .placeholder-icon {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .show-breaks .page-break-placeholder {
+      display: block;
+    }
+    
+    .toggle-breaks-button {
+      position: fixed;
+      bottom: 100px;
+      right: 32px;
+      background: white;
+      color: #1a365d;
+      border: 2px solid #667eea;
+      padding: 14px 28px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 1000;
+    }
+    
+    .toggle-breaks-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      background: #f7fafc;
+    }
+    
+    .toggle-icon {
+      width: 18px;
+      height: 18px;
+    }
+    
+    @media print {
+      @page {
+        margin: 0;
+      }
+      
+      .export-button,
+      .toggle-breaks-button {
+        display: none;
+      }
+      
+      .page-break {
+        display: block !important;
+        page-break-after: always;
+        border: none;
+        background: none;
+        margin: 0;
+        padding: 0;
+        height: 0;
+        overflow: hidden;
+      }
+      
+      .page-break-text {
+        display: none;
+      }
+      
+      .page-break-placeholder {
+        display: none !important;
+      }
+      
+      body {
+        background: white;
+        margin: 0;
+        padding: 0;
+      }
+      
+      html {
+        background: white;
+      }
+      
+      .cv-container {
+        box-shadow: none;
+        min-height: 100%;
+        display: flex;
+      }
+      
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 35%;
+        height: 100%;
+        min-height: 100%;
+      }
+      
+      .main-content {
+        margin-left: 35%;
+        width: 65%;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="cv-container">
+   <div class="sidebar">
+    <div class="profile-section">
+     <div class="profile-image" id="profileInitial">
+      JD
+     </div>
+     <h1 class="name" id="fullName">John Doe</h1>
+     <p class="job-title" id="jobTitle">Senior Product Designer</p>
+    </div>
+    <div class="contact-section">
+     <h2 class="section-title">Contact</h2>
+     <div class="contact-item">
+      <svg class="contact-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path> <polyline points="22,6 12,13 2,6"></polyline>
+      </svg><span id="email">john.doe@email.com</span>
+     </div>
+     <div class="contact-item">
+      <svg class="contact-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+      </svg><span id="phone">+1 234 567 8900</span>
+     </div>
+     <div class="contact-item">
+      <svg class="contact-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path> <circle cx="12" cy="10" r="3"></circle>
+      </svg><span id="location">San Francisco, CA</span>
+     </div>
+    </div>
+    <div class="skills-section">
+     <h2 class="section-title">Skills</h2>
+     <div class="skill-item">
+      <div class="skill-name">
+       UI/UX Design
+      </div>
+      <div class="skill-bar">
+       <div class="skill-progress" style="width: 95%"></div>
+      </div>
+     </div>
+     <div class="skill-item">
+      <div class="skill-name">
+       Figma &amp; Sketch
+      </div>
+      <div class="skill-bar">
+       <div class="skill-progress" style="width: 90%"></div>
+      </div>
+     </div>
+     <div class="skill-item">
+      <div class="skill-name">
+       Prototyping
+      </div>
+      <div class="skill-bar">
+       <div class="skill-progress" style="width: 85%"></div>
+      </div>
+     </div>
+     <div class="skill-item">
+      <div class="skill-name">
+       HTML/CSS
+      </div>
+      <div class="skill-bar">
+       <div class="skill-progress" style="width: 80%"></div>
+      </div>
+     </div>
+     <div class="skill-item">
+      <div class="skill-name">
+       User Research
+      </div>
+      <div class="skill-bar">
+       <div class="skill-progress" style="width: 88%"></div>
+      </div>
+     </div>
+    </div>
+    <div class="languages-section">
+     <h2 class="section-title">Languages</h2>
+     <div class="language-item">
+      <div class="language-name">
+       English
+      </div>
+      <div class="language-level">
+       Native
+      </div>
+     </div>
+     <div class="language-item">
+      <div class="language-name">
+       Spanish
+      </div>
+      <div class="language-level">
+       Professional
+      </div>
+     </div>
+     <div class="language-item">
+      <div class="language-name">
+       French
+      </div>
+      <div class="language-level">
+       Intermediate
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="main-content">
+    <div class="summary-section">
+     <h2 class="main-section-title">Professional Summary</h2>
+     <p class="summary-text" id="summaryText">Creative and detail-oriented Senior Product Designer with 8+ years of experience crafting intuitive digital experiences. Passionate about solving complex problems through user-centered design and data-driven decisions. Proven track record of leading design teams and delivering successful products that drive business growth.</p>
+    </div>
+    <div class="page-break-placeholder" data-location="after-summary">
+     <div class="page-break-placeholder-text">
+      <svg class="placeholder-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line> <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg> Click to add page break
+     </div>
+    </div>
+    <div class="experience-section">
+     <h2 class="main-section-title">Work Experience</h2>
+     <div class="experience-item">
+      <div class="item-header">
+       <h3 class="item-title">Senior Product Designer</h3>
+       <p class="item-subtitle">TechCorp Inc.</p>
+       <p class="item-date">Jan 2020 - Present</p>
+      </div>
+      <div class="item-description">
+       <ul>
+        <li>Led design initiatives for a SaaS platform serving 100k+ users, improving user satisfaction by 40%</li>
+        <li>Collaborated with cross-functional teams to define product strategy and roadmap</li>
+        <li>Established and maintained a comprehensive design system used across 5 product lines</li>
+        <li>Mentored junior designers and conducted design critiques to elevate team output</li>
+       </ul>
+      </div>
+     </div>
+     <div class="page-break-placeholder" data-location="after-exp1">
+      <div class="page-break-placeholder-text">
+       <svg class="placeholder-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line> <line x1="5" y1="12" x2="19" y2="12"></line>
+       </svg> Click to add page break
+      </div>
+     </div>
+     <div class="experience-item">
+      <div class="item-header">
+       <h3 class="item-title">Product Designer</h3>
+       <p class="item-subtitle">StartupXYZ</p>
+       <p class="item-date">Mar 2017 - Dec 2019</p>
+      </div>
+      <div class="item-description">
+       <ul>
+        <li>Designed and shipped mobile and web experiences for e-commerce platform</li>
+        <li>Conducted user research and usability testing to inform design decisions</li>
+        <li>Created wireframes, prototypes, and high-fidelity mockups</li>
+        <li>Increased conversion rate by 25% through iterative design improvements</li>
+       </ul>
+      </div>
+     </div>
+     <div class="page-break-placeholder" data-location="after-exp2">
+      <div class="page-break-placeholder-text">
+       <svg class="placeholder-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line> <line x1="5" y1="12" x2="19" y2="12"></line>
+       </svg> Click to add page break
+      </div>
+     </div>
+     <div class="experience-item">
+      <div class="item-header">
+       <h3 class="item-title">Junior UI/UX Designer</h3>
+       <p class="item-subtitle">Design Studio Co.</p>
+       <p class="item-date">Jun 2015 - Feb 2017</p>
+      </div>
+      <div class="item-description">
+       <ul>
+        <li>Worked on diverse client projects ranging from mobile apps to enterprise software</li>
+        <li>Developed responsive web designs and interactive prototypes</li>
+        <li>Collaborated with developers to ensure design implementation quality</li>
+       </ul>
+      </div>
+     </div>
+    </div>
+    <div class="page-break-placeholder" data-location="after-work-experience">
+     <div class="page-break-placeholder-text">
+      <svg class="placeholder-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line> <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg> Click to add page break
+     </div>
+    </div>
+    <div class="education-section">
+     <h2 class="main-section-title">Education</h2>
+     <div class="education-item">
+      <div class="item-header">
+       <h3 class="item-title">Bachelor of Fine Arts in Graphic Design</h3>
+       <p class="item-subtitle">University of Arts</p>
+       <p class="item-date">2011 - 2015</p>
+      </div>
+      <div class="item-description">
+       Graduated with honors. Focused on digital design, typography, and user experience.
+      </div>
+     </div>
+    </div>
+    <div class="page-break-placeholder" data-location="after-education">
+     <div class="page-break-placeholder-text">
+      <svg class="placeholder-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line> <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg> Click to add page break
+     </div>
+    </div>
+    <div class="volunteering-section">
+     <h2 class="main-section-title">Volunteering Experience</h2>
+     <div class="experience-item">
+      <div class="item-header">
+       <h3 class="item-title">Design Mentor</h3>
+       <p class="item-subtitle">DesignForGood Initiative</p>
+       <p class="item-date">2021 - Present</p>
+      </div>
+      <div class="item-description">
+       <ul>
+        <li>Mentor aspiring designers from underrepresented communities</li>
+        <li>Conduct monthly workshops on design principles and career development</li>
+        <li>Review portfolios and provide constructive feedback to 15+ mentees</li>
+       </ul>
+      </div>
+     </div>
+     <div class="page-break-placeholder" data-location="after-vol1">
+      <div class="page-break-placeholder-text">
+       <svg class="placeholder-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line> <line x1="5" y1="12" x2="19" y2="12"></line>
+       </svg> Click to add page break
+      </div>
+     </div>
+     <div class="experience-item">
+      <div class="item-header">
+       <h3 class="item-title">UX Design Volunteer</h3>
+       <p class="item-subtitle">Local Non-Profit Organization</p>
+       <p class="item-date">2019 - 2020</p>
+      </div>
+      <div class="item-description">
+       <ul>
+        <li>Redesigned the organization's website to improve accessibility and user engagement</li>
+        <li>Increased online donations by 35% through improved user experience</li>
+       </ul>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div><button class="toggle-breaks-button" id="toggleBreaksButton">
+   <svg class="toggle-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line> <line x1="3" y1="6" x2="21" y2="6"></line> <line x1="3" y1="18" x2="21" y2="18"></line>
+   </svg> Page Breaks </button> <button class="export-button" id="exportButton">
+   <svg class="export-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path> <polyline points="7 10 12 15 17 10"></polyline> <line x1="12" y1="15" x2="12" y2="3"></line>
+   </svg> Export to PDF </button>
+  <script>
+    const defaultConfig = {
+      full_name: "John Doe",
+      job_title: "Senior Product Designer",
+      email: "john.doe@email.com",
+      phone: "+1 234 567 8900",
+      location: "San Francisco, CA",
+      summary_text: "Creative and detail-oriented Senior Product Designer with 8+ years of experience crafting intuitive digital experiences. Passionate about solving complex problems through user-centered design and data-driven decisions. Proven track record of leading design teams and delivering successful products that drive business growth.",
+      background_color: "#1a365d",
+      accent_color: "#667eea",
+      text_color: "#2d3748"
+    };
+
+    function getInitials(name) {
+      const parts = name.trim().split(' ');
+      if (parts.length >= 2) {
+        return parts[0][0] + parts[parts.length - 1][0];
+      }
+      return parts[0][0];
+    }
+
+    async function onConfigChange(config) {
+      const name = config.full_name || defaultConfig.full_name;
+      const jobTitle = config.job_title || defaultConfig.job_title;
+      const email = config.email || defaultConfig.email;
+      const phone = config.phone || defaultConfig.phone;
+      const location = config.location || defaultConfig.location;
+      const summary = config.summary_text || defaultConfig.summary_text;
+      const bgColor = config.background_color || defaultConfig.background_color;
+      const accentColor = config.accent_color || defaultConfig.accent_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+
+      document.getElementById('fullName').textContent = name;
+      document.getElementById('jobTitle').textContent = jobTitle;
+      document.getElementById('email').textContent = email;
+      document.getElementById('phone').textContent = phone;
+      document.getElementById('location').textContent = location;
+      document.getElementById('summaryText').textContent = summary;
+      document.getElementById('profileInitial').textContent = getInitials(name);
+
+      document.querySelector('.sidebar').style.background = bgColor;
+      
+      const accentElements = document.querySelectorAll('.main-section-title, .item-subtitle');
+      accentElements.forEach(el => el.style.color = accentColor);
+      
+      const borderElements = document.querySelectorAll('.main-section-title');
+      borderElements.forEach(el => el.style.borderColor = accentColor);
+      
+      const beforeElements = document.querySelectorAll('.experience-item::before, .education-item::before');
+      document.documentElement.style.setProperty('--accent-color', accentColor);
+      
+      const progressBars = document.querySelectorAll('.skill-progress');
+      progressBars.forEach(bar => {
+        bar.style.background = `linear-gradient(90deg, ${accentColor} 0%, #764ba2 100%)`;
+      });
+      
+      const profileImage = document.querySelector('.profile-image');
+      profileImage.style.background = `linear-gradient(135deg, ${accentColor} 0%, #764ba2 100%)`;
+      
+      const textElements = document.querySelectorAll('.item-title');
+      textElements.forEach(el => el.style.color = textColor);
+    }
+
+    // Page break functionality
+    let breakCounter = 0;
+    let breaksVisible = false;
+    
+    function createPageBreak() {
+      const pageBreak = document.createElement('div');
+      pageBreak.className = 'page-break';
+      pageBreak.dataset.breakId = breakCounter++;
+      
+      pageBreak.innerHTML = `
+        <div class="page-break-text">
+          <svg class="page-break-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+          Page Break
+          <span class="remove-break">Remove</span>
+        </div>
+      `;
+      
+      pageBreak.querySelector('.remove-break').addEventListener('click', function(e) {
+        e.stopPropagation();
+        pageBreak.remove();
+      });
+      
+      return pageBreak;
+    }
+    
+    // Add click handlers to placeholders
+    document.addEventListener('DOMContentLoaded', function() {
+      const placeholders = document.querySelectorAll('.page-break-placeholder');
+      placeholders.forEach(placeholder => {
+        placeholder.addEventListener('click', function() {
+          if (!breaksVisible) return;
+          
+          const pageBreak = createPageBreak();
+          this.style.display = 'none';
+          this.parentNode.insertBefore(pageBreak, this);
+        });
+      });
+    });
+    
+    document.getElementById('toggleBreaksButton').addEventListener('click', function() {
+      breaksVisible = !breaksVisible;
+      document.body.classList.toggle('show-breaks', breaksVisible);
+      this.textContent = breaksVisible ? 'Hide Breaks' : 'Page Breaks';
+      
+      const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      icon.setAttribute('class', 'toggle-icon');
+      icon.setAttribute('viewBox', '0 0 24 24');
+      icon.setAttribute('fill', 'none');
+      icon.setAttribute('stroke', 'currentColor');
+      icon.setAttribute('stroke-width', '2');
+      
+      const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line1.setAttribute('x1', '3');
+      line1.setAttribute('y1', '12');
+      line1.setAttribute('x2', '21');
+      line1.setAttribute('y2', '12');
+      
+      const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line2.setAttribute('x1', '3');
+      line2.setAttribute('y1', '6');
+      line2.setAttribute('x2', '21');
+      line2.setAttribute('y2', '6');
+      
+      const line3 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line3.setAttribute('x1', '3');
+      line3.setAttribute('y1', '18');
+      line3.setAttribute('x2', '21');
+      line3.setAttribute('y2', '18');
+      
+      icon.appendChild(line1);
+      icon.appendChild(line2);
+      icon.appendChild(line3);
+      
+      this.insertBefore(icon, this.firstChild);
+    });
+
+    // PDF Export functionality
+    document.getElementById('exportButton').addEventListener('click', function() {
+      window.print();
+    });
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.accent_color || defaultConfig.accent_color,
+              set: (value) => {
+                config.accent_color = value;
+                window.elementSdk.setConfig({ accent_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["full_name", config.full_name || defaultConfig.full_name],
+          ["job_title", config.job_title || defaultConfig.job_title],
+          ["email", config.email || defaultConfig.email],
+          ["phone", config.phone || defaultConfig.phone],
+          ["location", config.location || defaultConfig.location],
+          ["summary_text", config.summary_text || defaultConfig.summary_text]
+        ])
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a7bd6c5061abc1b',t:'MTc2NDY4OTE0OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

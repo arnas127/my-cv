@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title></title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Fixed sidebar background for print (no content) -->
+    <div class="sidebar-print-bg"></div>
+
+    <!-- Root where the CV will be rendered by JS -->
+    <div id="cv-root"></div>
+
+    <!-- Hamburger menu -->
+    <button class="menu-toggle-button" id="menuToggleButton">
+      <svg
+        class="menu-toggle-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+
+    <!-- Actions panel (three rows of buttons) -->
+    <div class="actions-panel" id="actionsPanel">
+      <!-- 1st row: LT / EN -->
+      <div class="actions-row">
+        <button class="language-button" id="langEnButton">
+          <span class="language-button-label" id="langEnLabel"></span>
+        </button>
+        <button class="language-button" id="langLtButton">
+          <span class="language-button-label" id="langLtLabel"></span>
+        </button>
+      </div>
+
+      <!-- 2nd row: page breaks -->
+      <div class="actions-row">
+        <button class="toggle-breaks-button" id="toggleBreaksButton">
+          <svg
+            class="toggle-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          <span id="toggleBreaksLabel"></span>
+        </button>
+      </div>
+
+      <!-- 3rd row: print / export -->
+      <div class="actions-row">
+        <button class="export-button" id="exportButton">
+          <svg
+            class="export-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+            ></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span id="exportLabel"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Translations & app logic -->
+    <script src="templateTranslations.js"></script>
+    <script src="contentTranslations.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
