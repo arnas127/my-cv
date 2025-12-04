@@ -22,6 +22,8 @@ body {
   min-height: 100vh;
 }
 
+/* ================ MODALS ================ */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -123,9 +125,19 @@ body {
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-10px); }
-  75% { transform: translateX(10px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-10px);
+  }
+
+  75% {
+    transform: translateX(10px);
+  }
 }
 
 .error-message {
@@ -178,7 +190,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .video-container {
@@ -203,6 +217,8 @@ body {
 .hidden {
   display: none !important;
 }
+
+/* ================ CV LAYOUT ================ */
 
 .cv-container {
   width: 100%;
@@ -333,9 +349,10 @@ body {
   flex-shrink: 0;
 }
 
-.contact-cv-link {
-/*  display: none;*/
-}
+/* CV URL row: hidden on screen, visible in print */
+/* .contact-cv-link {
+  display: none;
+} */
 
 .skills-section {
   margin-top: 40px;
@@ -394,10 +411,10 @@ body {
 }
 
 /* Additional info styled like languages */
-
+/* 
 .additional-info-section {
   margin-top: 40px;
-}
+} */
 
 .additional-info-item {
   display: flex;
@@ -509,64 +526,26 @@ body {
   margin-bottom: 6px;
 }
 
-/* Hamburger menu */
+/* ================ FLOATING CONTROLS ================ */
 
-.menu-toggle-button {
+.floating-controls {
   position: fixed;
+  right: 32px;
   bottom: 32px;
-  right: 32px;
-  width: 48px;
-  height: 48px;
-  border-radius: 999px;
-  border: none;
-  background: white;
-  color: #1a365d;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
-  cursor: pointer;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1100;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.menu-toggle-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
-}
-
-.menu-toggle-icon {
-  width: 22px;
-  height: 22px;
-}
-
-/* Actions panel */
-
-.actions-panel {
-  position: fixed;
-  bottom: 96px;
-  right: 32px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
-  padding: 12px 16px;
-  display: none;
   flex-direction: column;
-  gap: 10px;
-  z-index: 1050;
+  gap: 8px;
+  z-index: 1000;
 }
 
-.actions-panel--visible {
-  display: flex;
-}
-
-.actions-row {
+/* Row for language buttons */
+.floating-language-row {
   display: flex;
   gap: 8px;
+  justify-content: flex-end;
 }
 
-/* Buttons inside panel */
-
+/* Language buttons on desktop */
 .language-button {
   border-radius: 999px;
   border: 2px solid #667eea;
@@ -591,25 +570,13 @@ body {
   color: white;
 }
 
-.floating-controls {
-  position: fixed;
-  right: 32px;
-  bottom: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 1000;
-}
-
-/* Row for language buttons */
-.floating-language-row {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
+/* Prevent hover effect on active language button */
+.language-button.language-button--active:hover {
+  background: #667eea !important;
+  color: #fff !important;
 }
 
 .export-button {
-  /* removed: position / bottom / right */
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
@@ -639,16 +606,11 @@ body {
   height: 20px;
 }
 
-.toggle-icon {
-  width: 18px;
-  height: 18px;
-}
+/* ================ PRINT STYLES ================ */
 
-/* Print styles */
 @media print {
   @page {
     margin: 0;
-    margin-top: 50mm;
   }
 
   #reopenVideoButton,
@@ -658,8 +620,8 @@ body {
 
   body {
     background: white;
-    margin: 0;
-    padding: 0;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   html {
@@ -696,10 +658,9 @@ body {
   .section-head-block {
     break-inside: avoid-page;
     page-break-inside: avoid;
-    padding-top: 4mm; /* optional extra space at top if it starts a new page */
+    padding-top: 4mm;
   }
 
-  /* Don't split individual blocks */
   .experience-item,
   .education-item,
   .volunteering-section .experience-item,
@@ -708,7 +669,6 @@ body {
     page-break-inside: avoid;
   }
 
-  /* Keep languages & skills together as blocks */
   .languages-section,
   .skills-section,
   .additional-info-section {
@@ -720,17 +680,16 @@ body {
     page-break-inside: avoid;
   }
 
-/*  /* Optional: force Additional Info to a separate page */
   .additional-info-section {
-    padding-top: 10mm;    /* only when break happens */
+    padding-top: 10mm;
     margin-top: 0 !important;
-  }*/
+  }
 
   .volunteering-section {
     break-inside: avoid-page;
     page-break-inside: avoid;
   }
-  /* Try to keep section titles with some content */
+
   .main-section-title {
     break-after: avoid-page;
     page-break-after: avoid;
@@ -742,7 +701,165 @@ body {
   }
 
   .contact-cv-link {
-    display: flex; /* matches .contact-item layout */
+    display: flex;
+    /* show CV url in print */
   }
 }
 
+/* ================ RESPONSIVE (MOBILE / TABLET) ================ */
+/* OPTION A: desktop = side-by-side, mobile = stacked */
+/* Breakpoint ~ tablet portrait and below */
+
+@media screen and (max-width: 900px) {
+  body {
+    background: #edf2f7;
+  }
+
+  .cv-container {
+    flex-direction: column;
+    /* sidebar on top, main below */
+    min-height: auto;
+  }
+
+  .sidebar {
+    width: 100%;
+    padding: 32px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .main-content {
+    width: 100%;
+    padding: 24px 20px 80px;
+    /* extra bottom so floating controls don't cover */
+  }
+
+  .name {
+    font-size: 24px;
+  }
+
+  .job-title {
+    font-size: 14px;
+  }
+
+  .section-title {
+    font-size: 12px;
+  }
+
+  .main-section-title {
+    font-size: 20px;
+  }
+
+  .summary-text {
+    font-size: 14px;
+  }
+
+  .item-title {
+    font-size: 16px;
+  }
+
+  .item-subtitle {
+    font-size: 14px;
+  }
+
+  .item-description {
+    font-size: 13px;
+  }
+
+  /* Floating controls closer to edges, smaller */
+  .floating-controls {
+    right: 16px;
+    bottom: 16px;
+    gap: 6px;
+  }
+
+  .language-button {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .reopen-video-button {
+    left: 16px;
+    bottom: 16px;
+    padding: 10px 14px;
+    font-size: 13px;
+    border-radius: 999px;
+  }
+}
+
+/* Very small screens: tweak text & modals & icon-only buttons */
+
+@media screen and (max-width: 600px) {
+  .modal-content {
+    padding: 24px 16px;
+    max-width: 95%;
+    border-radius: 16px;
+  }
+
+  .modal-content.video-modal {
+    padding: 20px 12px;
+  }
+
+  .modal-title {
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+
+  .modal-subtitle {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .password-input {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  .modal-button {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .profile-image {
+    width: 110px;
+    height: 110px;
+    font-size: 40px;
+  }
+
+  .name {
+    font-size: 22px;
+  }
+
+  .job-title {
+    font-size: 13px;
+  }
+
+  .summary-text {
+    font-size: 13px;
+  }
+
+  /* Export + "watch video again" as icon-only on phones */
+  .export-button {
+    padding: 10px;
+    border-radius: 999px;
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+  }
+
+  .export-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .reopen-video-button {
+    padding: 10px;
+    border-radius: 999px;
+  }
+
+  .reopen-video-button span {
+    display: none;
+  }
+
+  .video-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
