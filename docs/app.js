@@ -14,6 +14,19 @@ function getContentStrings() {
   return CONTENT_TRANSLATIONS[currentLang] || CONTENT_TRANSLATIONS.en || {};
 }
 
+function getUrlLanguageParam() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const lang = (params.get('lang') || '').toLowerCase();
+    if (lang === 'en' || lang === 'lt') {
+      return lang;
+    }
+  } catch (e) {
+    // ignore if URLSearchParams is not supported for some reason
+  }
+  return null;
+}
+
 function createElement(tag, className, text) {
   const el = document.createElement(tag);
   if (className) el.className = className;
@@ -754,6 +767,10 @@ function initPasswordAndVideo() {
 
   if (!passwordModal || !passwordForm) return;
 
+  if (passwordInput) {
+    passwordInput.focus();
+  }
+
   if (modalLangEn) {
     modalLangEn.addEventListener('click', () => setLanguage('en'));
   }
@@ -915,6 +932,11 @@ function initPhotoModal() {
 // --- DOM ready ---
 
 document.addEventListener('DOMContentLoaded', () => {
+  const langFromUrl = getUrlLanguageParam();
+  if (langFromUrl) {
+    currentLang = langFromUrl;
+  }
+
   initButtons();
   updateButtonTranslations();
   updateModalTranslations();
