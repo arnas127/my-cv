@@ -107,6 +107,10 @@ function renderSidebar(container) {
     img.alt = c.fullName || '';
     img.className = 'profile-image-img';
     profileImage.appendChild(img);
+
+    // Make it clickable only when there is a real photo
+    profileImage.classList.add('profile-image--clickable');
+    profileImage.addEventListener('click', () => openPhotoModal(imageSrc));
   } else {
     const initials = (c.fullName || '')
       .split(' ')
@@ -117,6 +121,7 @@ function renderSidebar(container) {
       .toUpperCase();
     profileImage.textContent = initials;
   }
+
 
   const nameEl = createElement('h1', 'name', c.fullName);
   const jobEl = createElement('p', 'job-title', c.jobTitle);
@@ -867,6 +872,46 @@ function initExportModalClose() {
   }
 }
 
+function openPhotoModal(src) {
+  const modal = document.getElementById('photoModal');
+  const img = document.getElementById('photoModalImage');
+  if (!modal || !img || !src) return;
+
+  const c = getContentStrings();
+  img.src = src;
+  img.alt = c.fullName || 'Profile photo';
+
+  modal.classList.remove('hidden');
+}
+
+function closePhotoModal() {
+  const modal = document.getElementById('photoModal');
+  const img = document.getElementById('photoModalImage');
+  if (!modal || !img) return;
+
+  modal.classList.add('hidden');
+  img.src = '';
+}
+
+function initPhotoModal() {
+  const modal = document.getElementById('photoModal');
+  if (!modal) return;
+
+  // Close on any click inside the modal (overlay or picture)
+  modal.addEventListener('click', () => {
+    closePhotoModal();
+  });
+
+  // Close on ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' || e.key === 'Esc') {
+      if (!modal.classList.contains('hidden')) {
+        closePhotoModal();
+      }
+    }
+  });
+}
+
 // --- DOM ready ---
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -876,4 +921,5 @@ document.addEventListener('DOMContentLoaded', () => {
   updateModalLanguageButtonsUi();
   initPasswordAndVideo();
   initExportModalClose();
+  initPhotoModal();
 });

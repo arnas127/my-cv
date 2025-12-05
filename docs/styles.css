@@ -132,6 +132,38 @@ body {
   padding: 32px;
 }
 
+/* ============ PHOTO MODAL ============ */
+.modal-content.photo-modal {
+  max-width: 420px;
+  width: auto;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.photo-modal-circle {
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto;
+
+  background: linear-gradient(135deg, var(--color-accent-1) 0%, var(--color-accent-2) 100%);
+  border: 4px solid rgba(255, 255, 255, 0.2);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.photo-modal-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .modal-title {
   font-size: 32px;
   font-weight: 700;
@@ -342,6 +374,16 @@ body {
   font-weight: 700;
   color: var(--color-white);
   border: 4px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-image--clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-image--clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
 }
 
 /* Profile image <img> should fill the profile circle */
@@ -687,7 +729,8 @@ body {
   #passwordModal,
   #videoModal,
   #languageWarningModal,
-  #iosExportInfoModal {
+  #iosExportInfoModal,
+  #photoModal {
     display: none !important;
     visibility: hidden !important;
   }
