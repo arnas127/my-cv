@@ -33,7 +33,7 @@ const db = firebase.firestore();
  *   }
  *
  * Returns:
- *   - translations object (for all languages) if found
+ *   - object with translations (for all languages) if found
  *   - null if no document exists (wrong password)
  */
 window.fetchCvByPassword = async function fetchCvByPassword(password) {
@@ -46,6 +46,5 @@ window.fetchCvByPassword = async function fetchCvByPassword(password) {
 
   const data = snapshot.data();
 
-  console.log(data);
-  return data.translations || null;
+  return data || null;
 };

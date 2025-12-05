@@ -1,6 +1,7 @@
 let currentLang = 'en';
 let cvUnlocked = false;
 
+let GLOBAL_PROFILE_IMAGE = null;
 // Filled from Firebase after successful password entry
 let CONTENT_TRANSLATIONS = {};
 
@@ -96,8 +97,8 @@ function renderSidebar(container) {
   // If profileImage is set in content translations (URL or base64),
   // show that image; otherwise show initials.
   const imageSrc =
-    typeof c.profileImage === 'string' && c.profileImage.trim()
-      ? c.profileImage.trim()
+    typeof GLOBAL_PROFILE_IMAGE === 'string' && GLOBAL_PROFILE_IMAGE.trim()
+      ? GLOBAL_PROFILE_IMAGE.trim()
       : '';
 
   if (imageSrc) {
@@ -805,9 +806,9 @@ function initPasswordAndVideo() {
     setPasswordLoading(true);
 
     try {
-      const translations = await window.fetchCvByPassword(enteredPassword);
+      const responseData = await window.fetchCvByPassword(enteredPassword);
 
-      if (!translations) {
+      if (!responseData) {
         if (errorMessage) {
           errorMessage.classList.remove('hidden');
         }
@@ -820,7 +821,8 @@ function initPasswordAndVideo() {
         return;
       }
 
-      CONTENT_TRANSLATIONS = translations || {};
+      CONTENT_TRANSLATIONS = responseData.translations || {};
+      GLOBAL_PROFILE_IMAGE = responseData.profileImage || null
       cvUnlocked = true;
 
       // Hide password modal now

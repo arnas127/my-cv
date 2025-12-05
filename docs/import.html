@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <title>CV Import Tool</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow, noai, noimageai, noimageindex">
 
   <!-- Simple styling so it's not ugly -->
   <style>
@@ -123,7 +124,9 @@
         Expected JSON: either
         <code>{ "en": {...}, "lt": {...} }</code>
         or
-        <code>{ "translations": { "en": {...}, "lt": {...} } }</code>.
+        <code>{ "translations": { "en": {...}, "lt": {...} } }</code>
+        or a full document like
+        <code>{ "profileImage": "...", "translations": { "en": {...}, "lt": {...} } }</code>.
       </small>
     </div>
 
@@ -161,7 +164,6 @@
         return;
       }
       previewEl.style.display = "block";
-      // Show only top-level keys to avoid huge wall of text
       const keys = Object.keys(obj);
       previewEl.textContent =
         "Top-level keys: " +
@@ -192,7 +194,6 @@
           return;
         }
 
-        // Basic check that Firestore is available
         if (typeof firebase === "undefined" || !firebase.firestore) {
           setStatus(
             "Firebase is not initialized. Check firebaseConfig.js inclusion.",
@@ -216,41 +217,70 @@
             return;
           }
 
-          // Determine what is the translations object
-          // 1) If file has { translations: {...} } use that
-          // 2) Else treat whole JSON as translations
-          let translations;
-          if (json && typeof json === "object" && json.translations) {
-            translations = json.translations;
-          } else {
-            translations = json;
-          }
-
-          if (
-            !translations ||
-            typeof translations !== "object" ||
-            Array.isArray(translations)
-          ) {
+          if (!json || typeof json !== "object" || Array.isArray(json)) {
             setStatus(
-              "Parsed JSON does not look like an object of translations.",
+              "Parsed JSON does not look like an object.",
               "error"
             );
             importButton.disabled = false;
             return;
           }
 
-          setPreview(translations);
+          // NEW LOGIC:
+          // - If JSON already has a "translations" object, treat the whole JSON
+          //   as the Firestore document (supports profileImage, etc).
+          // - Otherwise, treat the JSON itself as translations and wrap it.
+          let cvDoc;
+
+          if (
+            Object.prototype.hasOwnProperty.call(json, "translations")
+          ) {
+            const translations = json.translations;
+            if (
+              !translations ||
+              typeof translations !== "object" ||
+              Array.isArray(translations)
+            ) {
+              setStatus(
+                '"translations" field must be an object (e.g. { "en": {...}, "lt": {...} }).',
+                "error"
+              );
+              importButton.disabled = false;
+              return;
+            }
+
+            // Use JSON as full document (might contain profileImage, etc.)
+            cvDoc = json;
+          } else {
+            // Legacy format: treat whole JSON as translations
+            const translations = json;
+            if (
+              !translations ||
+              typeof translations !== "object" ||
+              Array.isArray(translations)
+            ) {
+              setStatus(
+                "Parsed JSON does not look like an object of translations.",
+                "error"
+              );
+              importButton.disabled = false;
+              return;
+            }
+
+            cvDoc = {
+              translations: translations,
+            };
+          }
+
+          // Show preview of the whole document (including profileImage if present)
+          setPreview(cvDoc);
           setStatus("Uploading to Firestore...", null);
 
-          // Use the same db from firebaseConfig.js (top-level const db)
-          const dbRef = firebase.firestore(); // or just "db" if you defined it globally
+          const dbRef = firebase.firestore();
 
-          await dbRef.collection("cvs").doc(key).set(
-            {
-              translations: translations
-            },
-            { merge: false } // overwrite doc completely
-          );
+          await dbRef.collection("cvs").doc(key).set(cvDoc, {
+            merge: false, // overwrite doc completely
+          });
 
           setStatus(
             'Import successful. Document saved as "cvs/' + key + '".',

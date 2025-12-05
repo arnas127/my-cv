@@ -143,76 +143,78 @@ Below is the full structure with explanations for each field.
 
 ```jsonc
 {
-  "en": {                      // Language code (required: at least one: "en" or "lt")
-    "documentTitle": "My CV", // (optional) Title for browser tab & PDF
 
-    "videoIntroUrl": "",      // (optional) YouTube embed URL
-                              // If empty or missing → video modal is skipped
-
-    "cvUrl": "",              // (optional) CV URL shown only in print
-                              // If missing → fallback from template is used
-
-    "profileImage": "",       // (optional) URL or base64 "data:image/png;base64,..."
+  "profileImage": "",         // (optional) URL or base64 "data:image/png;base64,..."
                               // If missing → initials are shown
+  "translations": {
+    "en": {                      // Language code (required: at least one: "en" or "lt")
+      "documentTitle": "My CV", // (optional) Title for browser tab & PDF
 
-    "fullName": "John Doe",   // (required)
-    "jobTitle": "Developer",  // (optional)
+      "videoIntroUrl": "",      // (optional) YouTube embed URL
+                                // If empty or missing → video modal is skipped
 
-    "contact": {
-      "email": "",            // (optional)
-      "phone": "",            // (optional)
-      "location": ""          // (optional)
+      "cvUrl": "",              // (optional) CV URL shown only in print
+                                // If missing → fallback from template is used
+
+      "fullName": "John Doe",   // (required)
+      "jobTitle": "Developer",  // (optional)
+
+      "contact": {
+        "email": "",            // (optional)
+        "phone": "",            // (optional)
+        "location": ""          // (optional)
+      },
+
+      "summary": "",            // (optional) Short personal summary
+
+      "skills": [               // (optional)
+        { "name": "React", "level": 90 }
+      ],
+
+      "languages": [            // (optional)
+        { "name": "English", "level": "Native" }
+      ],
+
+      "additionalInfo": [       // (optional)
+        { "label": "Hobbies", "value": "Photography" }
+      ],
+
+      "experiences": [          // (optional)
+        {
+          "title": "Developer",
+          "company": "TechCorp",
+          "date": "2020–Present",
+          "bullets": [
+            "Did something",
+            "Did something else"
+          ]
+        }
+      ],
+
+      "education": [            // (optional)
+        {
+          "degree": "BSc Computer Science",
+          "institution": "NYU",
+          "date": "2013–2017",
+          "description": "Specialization in Software Engineering"
+        }
+      ],
+
+      "volunteering": [         // (optional)
+        {
+          "title": "Mentor",
+          "organization": "Code for Good",
+          "date": "2019–2021",
+          "bullets": [
+            "Taught HTML and CSS"
+          ]
+        }
+      ]
     },
 
-    "summary": "",            // (optional) Short personal summary
-
-    "skills": [               // (optional)
-      { "name": "React", "level": 90 }
-    ],
-
-    "languages": [            // (optional)
-      { "name": "English", "level": "Native" }
-    ],
-
-    "additionalInfo": [       // (optional)
-      { "label": "Hobbies", "value": "Photography" }
-    ],
-
-    "experiences": [          // (optional)
-      {
-        "title": "Developer",
-        "company": "TechCorp",
-        "date": "2020–Present",
-        "bullets": [
-          "Did something",
-          "Did something else"
-        ]
-      }
-    ],
-
-    "education": [            // (optional)
-      {
-        "degree": "BSc Computer Science",
-        "institution": "NYU",
-        "date": "2013–2017",
-        "description": "Specialization in Software Engineering"
-      }
-    ],
-
-    "volunteering": [         // (optional)
-      {
-        "title": "Mentor",
-        "organization": "Code for Good",
-        "date": "2019–2021",
-        "bullets": [
-          "Taught HTML and CSS"
-        ]
-      }
-    ]
-  },
-
-  "lt": {
-    // Same structure as "en"
+    "lt": {
+      // Same structure as "en"
+    }
   }
 }
 ```

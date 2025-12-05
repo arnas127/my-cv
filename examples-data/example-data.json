@@ -1,186 +1,187 @@
 {
-  "en": {
-    "documentTitle": "My CV",
-    "videoIntroUrl": "https://www.youtube.com/embed/XXXXXXXXXXX",
-    "fullName": "John Doe",
-    "jobTitle": "Full Stack Developer",
-    "profileImage": "https://example.com/avatar.jpg",
-    "cvUrl": "https://mycv.lt#en",
-    "contact": {
-      "email": "john@example.com",
-      "phone": "+1 555 000 000",
-      "location": "New York, USA"
+  "profileImage": "https://example.com/avatar.jpg",
+  "translations": {
+    "en": {
+      "documentTitle": "My CV",
+      "videoIntroUrl": "https://www.youtube.com/embed/XXXXXXXXXXX",
+      "fullName": "John Doe",
+      "jobTitle": "Full Stack Developer",
+      "cvUrl": "https://mycv.lt#en",
+      "contact": {
+        "email": "john@example.com",
+        "phone": "+1 555 000 000",
+        "location": "New York, USA"
+      },
+      "skills": [
+        {
+          "name": "JavaScript",
+          "level": 90
+        },
+        {
+          "name": "React",
+          "level": 85
+        },
+        {
+          "name": "Node.js",
+          "level": 80
+        },
+        {
+          "name": "CSS",
+          "level": 75
+        }
+      ],
+      "languages": [
+        {
+          "name": "English",
+          "level": "Native"
+        },
+        {
+          "name": "Spanish",
+          "level": "Intermediate"
+        }
+      ],
+      "additionalInfo": [
+        {
+          "label": "Driving License",
+          "value": "B"
+        },
+        {
+          "label": "Hobbies",
+          "value": "Photography, Hiking"
+        }
+      ],
+      "summary": "Full stack developer with 7+ years of experience building scalable web apps.",
+      "experiences": [
+        {
+          "title": "Senior Developer",
+          "company": "TechCorp",
+          "date": "2020–Present",
+          "bullets": [
+            "Lead a team of 5 developers",
+            "Architected React + Node.js platform",
+            "Improved performance by 40%"
+          ]
+        },
+        {
+          "title": "Web Developer",
+          "company": "WebStudio",
+          "date": "2017–2020",
+          "bullets": [
+            "Built custom WordPress and JS applications",
+            "Managed hosting & deployments"
+          ]
+        }
+      ],
+      "education": [
+        {
+          "degree": "BSc Computer Science",
+          "institution": "New York University",
+          "date": "2013–2017",
+          "description": "Specialization in Software Engineering"
+        }
+      ],
+      "volunteering": [
+        {
+          "title": "Coding Mentor",
+          "organization": "Code for Good",
+          "date": "2019–2021",
+          "bullets": [
+            "Taught HTML, CSS, JS to students",
+            "Organized coding workshops"
+          ]
+        }
+      ]
     },
-    "skills": [
-      {
-        "name": "JavaScript",
-        "level": 90
+    "lt": {
+      "documentTitle": "Mano CV",
+      "videoIntroUrl": "https://www.youtube.com/embed/YYYYYYYYYYY",
+      "fullName": "Jonas Jonaitis",
+      "jobTitle": "Programuotojas",
+      "cvUrl": "https://mycv.lt#en",
+      "contact": {
+        "email": "jonas@example.com",
+        "phone": "+370 600 00 000",
+        "location": "Vilnius, Lietuva"
       },
-      {
-        "name": "React",
-        "level": 85
-      },
-      {
-        "name": "Node.js",
-        "level": 80
-      },
-      {
-        "name": "CSS",
-        "level": 75
-      }
-    ],
-    "languages": [
-      {
-        "name": "English",
-        "level": "Native"
-      },
-      {
-        "name": "Spanish",
-        "level": "Intermediate"
-      }
-    ],
-    "additionalInfo": [
-      {
-        "label": "Driving License",
-        "value": "B"
-      },
-      {
-        "label": "Hobbies",
-        "value": "Photography, Hiking"
-      }
-    ],
-    "summary": "Full stack developer with 7+ years of experience building scalable web apps.",
-    "experiences": [
-      {
-        "title": "Senior Developer",
-        "company": "TechCorp",
-        "date": "2020–Present",
-        "bullets": [
-          "Lead a team of 5 developers",
-          "Architected React + Node.js platform",
-          "Improved performance by 40%"
-        ]
-      },
-      {
-        "title": "Web Developer",
-        "company": "WebStudio",
-        "date": "2017–2020",
-        "bullets": [
-          "Built custom WordPress and JS applications",
-          "Managed hosting & deployments"
-        ]
-      }
-    ],
-    "education": [
-      {
-        "degree": "BSc Computer Science",
-        "institution": "New York University",
-        "date": "2013–2017",
-        "description": "Specialization in Software Engineering"
-      }
-    ],
-    "volunteering": [
-      {
-        "title": "Coding Mentor",
-        "organization": "Code for Good",
-        "date": "2019–2021",
-        "bullets": [
-          "Taught HTML, CSS, JS to students",
-          "Organized coding workshops"
-        ]
-      }
-    ]
-  },
-  "lt": {
-    "documentTitle": "Mano CV",
-    "videoIntroUrl": "https://www.youtube.com/embed/YYYYYYYYYYY",
-    "fullName": "Jonas Jonaitis",
-    "jobTitle": "Programuotojas",
-    "profileImage": "https://example.com/avatar.jpg",
-    "cvUrl": "https://mycv.lt#en",
-    "contact": {
-      "email": "jonas@example.com",
-      "phone": "+370 600 00 000",
-      "location": "Vilnius, Lietuva"
-    },
-    "skills": [
-      {
-        "name": "JavaScript",
-        "level": 90
-      },
-      {
-        "name": "React",
-        "level": 85
-      },
-      {
-        "name": "Node.js",
-        "level": 80
-      },
-      {
-        "name": "CSS",
-        "level": 75
-      }
-    ],
-    "languages": [
-      {
-        "name": "Lietuvių",
-        "level": "Gimtoji"
-      },
-      {
-        "name": "Anglų",
-        "level": "Geras"
-      }
-    ],
-    "additionalInfo": [
-      {
-        "label": "Vairuotojo pažymėjimas",
-        "value": "B"
-      },
-      {
-        "label": "Pomėgiai",
-        "value": "Fotografija, žygiai"
-      }
-    ],
-    "summary": "Programuotojas su 7+ metų patirtimi kuriant web sprendimus.",
-    "experiences": [
-      {
-        "title": "Vyresnysis programuotojas",
-        "company": "TechCorp",
-        "date": "2020–Dabar",
-        "bullets": [
-          "Vadovauju 5 programuotojų komandai",
-          "Kuriu React + Node.js architektūrą",
-          "Pagerinau našumą 40%"
-        ]
-      },
-      {
-        "title": "Web programuotojas",
-        "company": "WebStudio",
-        "date": "2017–2020",
-        "bullets": [
-          "Kūriau WordPress ir JS sprendimus",
-          "TVarkiau hostingo ir deploy procesus"
-        ]
-      }
-    ],
-    "education": [
-      {
-        "degree": "Kompiuterių mokslų bakalauras",
-        "institution": "Vilniaus Universitetas",
-        "date": "2013–2017",
-        "description": "Programų inžinerija"
-      }
-    ],
-    "volunteering": [
-      {
-        "title": "Mentorius",
-        "organization": "Code for Good",
-        "date": "2019–2021",
-        "bullets": [
-          "Mokiau HTML, CSS, JS",
-          "Organizavau praktinius mokymus"
-        ]
-      }
-    ]
+      "skills": [
+        {
+          "name": "JavaScript",
+          "level": 90
+        },
+        {
+          "name": "React",
+          "level": 85
+        },
+        {
+          "name": "Node.js",
+          "level": 80
+        },
+        {
+          "name": "CSS",
+          "level": 75
+        }
+      ],
+      "languages": [
+        {
+          "name": "Lietuvių",
+          "level": "Gimtoji"
+        },
+        {
+          "name": "Anglų",
+          "level": "Geras"
+        }
+      ],
+      "additionalInfo": [
+        {
+          "label": "Vairuotojo pažymėjimas",
+          "value": "B"
+        },
+        {
+          "label": "Pomėgiai",
+          "value": "Fotografija, žygiai"
+        }
+      ],
+      "summary": "Programuotojas su 7+ metų patirtimi kuriant web sprendimus.",
+      "experiences": [
+        {
+          "title": "Vyresnysis programuotojas",
+          "company": "TechCorp",
+          "date": "2020–Dabar",
+          "bullets": [
+            "Vadovauju 5 programuotojų komandai",
+            "Kuriu React + Node.js architektūrą",
+            "Pagerinau našumą 40%"
+          ]
+        },
+        {
+          "title": "Web programuotojas",
+          "company": "WebStudio",
+          "date": "2017–2020",
+          "bullets": [
+            "Kūriau WordPress ir JS sprendimus",
+            "TVarkiau hostingo ir deploy procesus"
+          ]
+        }
+      ],
+      "education": [
+        {
+          "degree": "Kompiuterių mokslų bakalauras",
+          "institution": "Vilniaus Universitetas",
+          "date": "2013–2017",
+          "description": "Programų inžinerija"
+        }
+      ],
+      "volunteering": [
+        {
+          "title": "Mentorius",
+          "organization": "Code for Good",
+          "date": "2019–2021",
+          "bullets": [
+            "Mokiau HTML, CSS, JS",
+            "Organizavau praktinius mokymus"
+          ]
+        }
+      ]
+    }
   }
 }
