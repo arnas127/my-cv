@@ -25,9 +25,9 @@ function isIOSStandalone() {
   const ua = window.navigator.userAgent || '';
   const isIOS = /iPhone|iPad|iPod/i.test(ua);
   const isStandalone =
-    window.matchMedia &&
-    window.matchMedia('(display-mode: standalone)').matches
-    || window.navigator.standalone;
+    (window.matchMedia &&
+      window.matchMedia('(display-mode: standalone)').matches) ||
+    window.navigator.standalone;
 
   return isIOS && isStandalone;
 }
@@ -80,7 +80,7 @@ function updateLanguageAvailability() {
   }
 }
 
-// --- Rendering ---
+// --- Rendering: Sidebar ---
 
 function renderSidebar(container) {
   const t = getTemplateStrings();
@@ -140,8 +140,7 @@ function renderSidebar(container) {
       text: c.contact?.phone || ''
     },
     {
-      iconPath:
-        'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z',
+      iconPath: 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z',
       circle: true,
       text: c.contact?.location || ''
     }
@@ -296,6 +295,112 @@ function renderSidebar(container) {
   container.appendChild(sidebar);
 }
 
+// --- Timeline helpers & rendering ---
+
+function getTimelineConfigs() {
+  const raw = window.TIMELINE_CONFIG;
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === 'object') {
+    return Object.keys(raw)
+      .map((key) => raw[key])
+      .filter(Boolean);
+  }
+  return [];
+}
+
+// Generic timeline item: works for experience, education, volunteering, etc.
+// Accepts both a description string and bullets array, or either one.
+// When both are present: description first, then bullets.
+function createTimelineItem(entry, config) {
+  const fields = config.fields || {};
+  const itemClasses = ['timeline-item'];
+  if (config.itemClass) itemClasses.push(config.itemClass);
+
+  const item = createElement('div', itemClasses.join(' '));
+
+  const dotClasses = ['timeline-dot'];
+  if (config.dotClass) dotClasses.push(config.dotClass);
+  const dot = createElement('span', dotClasses.join(' '));
+
+  const contentClasses = ['timeline-content'];
+  if (config.contentClass) contentClasses.push(config.contentClass);
+  const content = createElement('div', contentClasses.join(' '));
+
+  const header = createElement('div', 'item-header');
+
+  const titleKey = fields.title;
+  const subtitleKey = fields.subtitle;
+  const dateKey = fields.date;
+  const descriptionKey = fields.description;
+  const bulletsKey = fields.bullets;
+
+  const titleText = titleKey && entry[titleKey] ? entry[titleKey] : '';
+  const subtitleText =
+    subtitleKey && entry[subtitleKey] ? entry[subtitleKey] : '';
+  const dateText = dateKey && entry[dateKey] ? entry[dateKey] : '';
+
+  if (titleText) {
+    const titleEl = createElement('h3', 'item-title', titleText);
+    header.appendChild(titleEl);
+  }
+
+  if (subtitleText || dateText) {
+    const p = document.createElement('p');
+
+    if (subtitleText) {
+      const subtitleSpan = createElement('span', 'item-subtitle', subtitleText);
+      p.appendChild(subtitleSpan);
+    }
+
+    if (dateText) {
+      const dateSpan = createElement('span', 'item-date', dateText);
+      p.appendChild(dateSpan);
+    }
+
+    header.appendChild(p);
+  }
+
+  content.appendChild(header);
+
+  const descriptionText =
+    descriptionKey && typeof entry[descriptionKey] === 'string'
+      ? entry[descriptionKey]
+      : '';
+
+  const bullets =
+    bulletsKey && Array.isArray(entry[bulletsKey])
+      ? entry[bulletsKey].filter(Boolean)
+      : [];
+
+  if (descriptionText) {
+    const desc = createElement('div', 'item-description');
+    const p = createElement('p', '', descriptionText);
+    desc.appendChild(p);
+    content.appendChild(desc);
+  }
+
+  if (bullets.length) {
+    const desc = createElement(
+      'div',
+      descriptionText
+        ? 'item-description item-description--bullets'
+        : 'item-description'
+    );
+    const ul = document.createElement('ul');
+    bullets.forEach((b) => {
+      const li = document.createElement('li');
+      li.textContent = b;
+      ul.appendChild(li);
+    });
+    desc.appendChild(ul);
+    content.appendChild(desc);
+  }
+
+  item.append(dot, content);
+  return item;
+}
+
 function renderMainContent(container) {
   const t = getTemplateStrings();
   const c = getContentStrings();
@@ -315,180 +420,54 @@ function renderMainContent(container) {
   summarySection.append(summaryTitle, summaryText);
   main.appendChild(summarySection);
 
-  // Experience
-  if (c.experiences && c.experiences.length) {
-    const expSection = createElement('div', 'experience-section');
-    const expTitle = createElement(
+  // Generic timeline groups (experience, education, volunteering, etc.)
+  const timelineConfigs = getTimelineConfigs();
+
+  timelineConfigs.forEach((config) => {
+    if (!config || !config.dataKey) return;
+
+    const items = c[config.dataKey];
+    if (!Array.isArray(items) || !items.length) return;
+
+    const sectionClassNames = ['timeline-section'];
+    if (config.sectionClass) {
+      sectionClassNames.push(config.sectionClass);
+    }
+    const section = createElement('div', sectionClassNames.join(' '));
+
+    const sectionTitleKey = config.titleTranslationKey;
+    const sectionTitleText =
+      (sectionTitleKey && t[sectionTitleKey]) ||
+      config.fallbackTitle ||
+      '';
+
+    const sectionTitleEl = createElement(
       'h2',
       'main-section-title',
-      t.sectionExperience
+      sectionTitleText
     );
 
-    const headBlock = createElement(
-      'div',
-      'section-head-block experience-head-block'
-    );
-    headBlock.appendChild(expTitle);
-    headBlock.appendChild(createExperienceItem(c.experiences[0]));
-    expSection.appendChild(headBlock);
+    const headBlockClassNames = ['section-head-block'];
+    if (config.headBlockClass) {
+      headBlockClassNames.push(config.headBlockClass);
+    }
+    const headBlock = createElement('div', headBlockClassNames.join(' '));
+    headBlock.appendChild(sectionTitleEl);
 
-    for (let i = 1; i < c.experiences.length; i++) {
-      expSection.appendChild(createExperienceItem(c.experiences[i]));
+    // First item is rendered inside the head block to keep title + first item together
+    headBlock.appendChild(createTimelineItem(items[0], config));
+    section.appendChild(headBlock);
+
+    // Remaining items follow the head block
+    for (let i = 1; i < items.length; i++) {
+      section.appendChild(createTimelineItem(items[i], config));
     }
 
-    main.appendChild(expSection);
-  }
-
-  // Education
-  if (c.education && c.education.length) {
-    const eduSection = createElement('div', 'education-section');
-    const eduTitle = createElement(
-      'h2',
-      'main-section-title',
-      t.sectionEducation
-    );
-
-    const headBlock = createElement(
-      'div',
-      'section-head-block education-head-block'
-    );
-    headBlock.appendChild(eduTitle);
-    headBlock.appendChild(createEducationItem(c.education[0]));
-    eduSection.appendChild(headBlock);
-
-    for (let i = 1; i < c.education.length; i++) {
-      eduSection.appendChild(createEducationItem(c.education[i]));
-    }
-
-    main.appendChild(eduSection);
-  }
-
-  // Volunteering
-  if (c.volunteering && c.volunteering.length) {
-    const volSection = createElement('div', 'volunteering-section');
-    const volTitle = createElement(
-      'h2',
-      'main-section-title',
-      t.sectionVolunteering
-    );
-
-    const headBlock = createElement(
-      'div',
-      'section-head-block volunteering-head-block'
-    );
-    headBlock.appendChild(volTitle);
-    headBlock.appendChild(createVolunteeringItem(c.volunteering[0]));
-    volSection.appendChild(headBlock);
-
-    for (let i = 1; i < c.volunteering.length; i++) {
-      volSection.appendChild(createVolunteeringItem(c.volunteering[i]));
-    }
-
-    main.appendChild(volSection);
-  }
+    main.appendChild(section);
+  });
 
   container.appendChild(main);
 }
-
-function createExperienceItem(exp) {
-  const item = createElement('div', 'experience-item');
-
-  const dot = document.createElement('span');
-  dot.className = 'experience-dot';
-
-  const content = createElement('div', 'experience-content');
-
-  const header = createElement('div', 'item-header');
-  const title = createElement('h3', 'item-title', exp.title);
-
-  const p = document.createElement('p');
-  const companySpan = createElement('span', 'item-subtitle', exp.company);
-  const dateSpan = createElement('span', 'item-date', exp.date);
-  p.append(companySpan, dateSpan);
-
-  header.append(title, p);
-  content.appendChild(header);
-
-  if (exp.bullets && exp.bullets.length) {
-    const desc = createElement('div', 'item-description');
-    const ul = document.createElement('ul');
-    exp.bullets.forEach((b) => {
-      const li = document.createElement('li');
-      li.textContent = b;
-      ul.appendChild(li);
-    });
-    desc.appendChild(ul);
-    content.appendChild(desc);
-  }
-
-  item.append(dot, content);
-  return item;
-}
-
-function createEducationItem(edu) {
-  const item = createElement('div', 'experience-item');
-
-  const dot = document.createElement('span');
-  dot.className = 'experience-dot';
-
-  const content = createElement('div', 'experience-content');
-
-  const header = createElement('div', 'item-header');
-  const title = createElement('h3', 'item-title', edu.degree);
-
-  const p = document.createElement('p');
-  const instSpan = createElement('span', 'item-subtitle', edu.institution);
-  const dateSpan = createElement('span', 'item-date', edu.date);
-  p.append(instSpan, dateSpan);
-
-  header.append(title, p);
-  content.appendChild(header);
-
-  if (edu.description) {
-    const desc = createElement('div', 'item-description', edu.description);
-    content.appendChild(desc);
-  }
-
-  item.append(dot, content);
-  return item;
-}
-
-
-function createVolunteeringItem(vol) {
-  const item = createElement('div', 'experience-item');
-
-  const dot = document.createElement('span');
-  dot.className = 'experience-dot';
-
-  const content = createElement('div', 'experience-content');
-
-  const header = createElement('div', 'item-header');
-  const title = createElement('h3', 'item-title', vol.title);
-
-  const p = document.createElement('p');
-  const orgSpan = createElement('span', 'item-subtitle', vol.organization);
-  const dateSpan = createElement('span', 'item-date', vol.date);
-  p.append(orgSpan, dateSpan);
-
-  header.append(title, p);
-  content.appendChild(header);
-
-  if (vol.bullets && vol.bullets.length) {
-    const desc = createElement('div', 'item-description');
-    const ul = document.createElement('ul');
-    vol.bullets.forEach((b) => {
-      const li = document.createElement('li');
-      li.textContent = b;
-      ul.appendChild(li);
-    });
-    desc.appendChild(ul);
-    content.appendChild(desc);
-  }
-
-  item.append(dot, content);
-  return item;
-}
-
 
 function renderCv() {
   const root = document.getElementById('cv-root');
@@ -720,8 +699,7 @@ function proceedAfterSuccessfulLogin() {
 
   // Make sure currentLang is something we actually have now
   if (!available.includes(currentLang)) {
-    const fallback =
-      available.includes('en') ? 'en' : available[0];
+    const fallback = available.includes('en') ? 'en' : available[0];
     setLanguage(fallback);
   } else {
     setLanguage(currentLang);
@@ -822,7 +800,7 @@ function initPasswordAndVideo() {
       }
 
       CONTENT_TRANSLATIONS = responseData.translations || {};
-      GLOBAL_PROFILE_IMAGE = responseData.profileImage || null
+      GLOBAL_PROFILE_IMAGE = responseData.profileImage || null;
       cvUnlocked = true;
 
       // Hide password modal now
@@ -836,8 +814,7 @@ function initPasswordAndVideo() {
 
       // If user pre-selected a language that is NOT available => show warning modal
       if (!available.includes(currentLang)) {
-        const fallback =
-          available.includes('en') ? 'en' : available[0];
+        const fallback = available.includes('en') ? 'en' : available[0];
         showLanguageWarningModal(currentLang, fallback);
       } else {
         // Language is available, go directly

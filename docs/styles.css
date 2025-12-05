@@ -506,28 +506,30 @@ body {
   color: var(--color-summary-text);
 }
 
-.experience-section,
-.education-section,
-.volunteering-section {
+/* ================ UNIFIED TIMELINE LAYOUT ================ */
+/* Used for experience / education / volunteering (and future groups) */
+
+.timeline-section {
   margin-bottom: 10px;
 }
 
-.section-head-block>.experience-item {
+/* First item in a section head block should not get extra top margin */
+.section-head-block>.timeline-item {
   margin-top: 0 !important;
 }
 
-.experience-item {
+.timeline-item {
   display: flex;
   gap: 12px;
   margin-top: 32px;
   margin-bottom: 0;
 }
 
-.experience-content {
+.timeline-content {
   flex: 1;
 }
 
-.experience-dot {
+.timeline-dot {
   width: 12px;
   height: 12px;
   border-radius: 50%;
@@ -543,6 +545,8 @@ body {
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
+
+/* Header + text within a timeline item */
 
 .item-header {
   margin-bottom: 8px;
@@ -741,8 +745,7 @@ body {
     padding-top: 4mm;
   }
 
-  .experience-item,
-  .volunteering-section .experience-item,
+  .timeline-item,
   .additional-info-item {
     break-inside: avoid-page;
     page-break-inside: avoid;
@@ -764,11 +767,6 @@ body {
     margin-top: 0 !important;
   }
 
-  .volunteering-section {
-    break-inside: avoid-page;
-    page-break-inside: avoid;
-  }
-
   .main-section-title {
     break-after: avoid-page;
     page-break-after: avoid;
@@ -784,13 +782,13 @@ body {
     /* show CV url in print */
   }
 
-  .experience-dot {
+  .timeline-dot {
     background-color: var(--color-accent-1) !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  .experience-item {
+  .timeline-item {
     padding-top: 8mm;
     /* tweak 8mm to taste */
     margin-top: 0 !important;
@@ -798,7 +796,7 @@ body {
 
   /* But for the first item inside section-head-block,
      don't add extra spacing or dot offset */
-  .section-head-block>.experience-item {
+  .section-head-block>.timeline-item {
     padding-top: 0 !important;
   }
 }
