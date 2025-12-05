@@ -452,6 +452,8 @@ body {
   font-size: 12px;
   color: var(--color-gray-400);
   font-weight: 500;
+  text-align: right;
+  margin-left: auto;
 }
 
 /* Additional info styled like languages */
@@ -478,6 +480,8 @@ body {
   font-size: 12px;
   color: var(--color-gray-400);
   font-weight: 500;
+  text-align: right;
+  margin-left: auto;
 }
 
 /* Main content sections */
@@ -508,26 +512,29 @@ body {
   margin-bottom: 10px;
 }
 
-.experience-item,
-.education-item {
-  margin-bottom: 32px;
-  position: relative;
-  padding-left: 24px;
+.section-head-block>.experience-item {
+  margin-top: 0 !important;
 }
 
-.experience-item::before,
-.education-item::before,
-.volunteering-section .experience-item::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 6px;
+.experience-item {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+  margin-bottom: 0;
+}
+
+.experience-content {
+  flex: 1;
+}
+
+.experience-dot {
   width: 12px;
   height: 12px;
-
-  /* Perfect solid dot */
-  background-color: var(--color-accent-1);
   border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+
+  background-color: var(--color-accent-1);
 
   /* Subtle outline only */
   border: 2px solid var(--color-accent-1);
@@ -735,7 +742,6 @@ body {
   }
 
   .experience-item,
-  .education-item,
   .volunteering-section .experience-item,
   .additional-info-item {
     break-inside: avoid-page;
@@ -778,12 +784,22 @@ body {
     /* show CV url in print */
   }
 
-  .experience-item::before,
-  .education-item::before,
-  .volunteering-section .experience-item::before {
+  .experience-dot {
     background-color: var(--color-accent-1) !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  .experience-item {
+    padding-top: 8mm;
+    /* tweak 8mm to taste */
+    margin-top: 0 !important;
+  }
+
+  /* But for the first item inside section-head-block,
+     don't add extra spacing or dot offset */
+  .section-head-block>.experience-item {
+    padding-top: 0 !important;
   }
 }
 

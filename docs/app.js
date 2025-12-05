@@ -391,6 +391,12 @@ function renderMainContent(container) {
 
 function createExperienceItem(exp) {
   const item = createElement('div', 'experience-item');
+
+  const dot = document.createElement('span');
+  dot.className = 'experience-dot';
+
+  const content = createElement('div', 'experience-content');
+
   const header = createElement('div', 'item-header');
   const title = createElement('h3', 'item-title', exp.title);
 
@@ -400,7 +406,7 @@ function createExperienceItem(exp) {
   p.append(companySpan, dateSpan);
 
   header.append(title, p);
-  item.appendChild(header);
+  content.appendChild(header);
 
   if (exp.bullets && exp.bullets.length) {
     const desc = createElement('div', 'item-description');
@@ -411,14 +417,21 @@ function createExperienceItem(exp) {
       ul.appendChild(li);
     });
     desc.appendChild(ul);
-    item.appendChild(desc);
+    content.appendChild(desc);
   }
 
+  item.append(dot, content);
   return item;
 }
 
 function createEducationItem(edu) {
-  const item = createElement('div', 'education-item');
+  const item = createElement('div', 'experience-item');
+
+  const dot = document.createElement('span');
+  dot.className = 'experience-dot';
+
+  const content = createElement('div', 'experience-content');
+
   const header = createElement('div', 'item-header');
   const title = createElement('h3', 'item-title', edu.degree);
 
@@ -428,18 +441,26 @@ function createEducationItem(edu) {
   p.append(instSpan, dateSpan);
 
   header.append(title, p);
-  item.appendChild(header);
+  content.appendChild(header);
 
   if (edu.description) {
     const desc = createElement('div', 'item-description', edu.description);
-    item.appendChild(desc);
+    content.appendChild(desc);
   }
 
+  item.append(dot, content);
   return item;
 }
 
+
 function createVolunteeringItem(vol) {
   const item = createElement('div', 'experience-item');
+
+  const dot = document.createElement('span');
+  dot.className = 'experience-dot';
+
+  const content = createElement('div', 'experience-content');
+
   const header = createElement('div', 'item-header');
   const title = createElement('h3', 'item-title', vol.title);
 
@@ -449,7 +470,7 @@ function createVolunteeringItem(vol) {
   p.append(orgSpan, dateSpan);
 
   header.append(title, p);
-  item.appendChild(header);
+  content.appendChild(header);
 
   if (vol.bullets && vol.bullets.length) {
     const desc = createElement('div', 'item-description');
@@ -460,11 +481,13 @@ function createVolunteeringItem(vol) {
       ul.appendChild(li);
     });
     desc.appendChild(ul);
-    item.appendChild(desc);
+    content.appendChild(desc);
   }
 
+  item.append(dot, content);
   return item;
 }
+
 
 function renderCv() {
   const root = document.getElementById('cv-root');
