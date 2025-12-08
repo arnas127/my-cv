@@ -362,8 +362,8 @@ body {
 }
 
 .profile-image {
-  width: 140px;
-  height: 140px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--color-accent-1) 0%, var(--color-accent-2) 100%);
   margin: 0 auto 24px;
@@ -782,6 +782,11 @@ body {
     print-color-adjust: exact;
   }
 
+  .profile-image {
+    width: 160px;
+    height: 160px;
+  }
+
   .section-head-block {
     break-inside: avoid-page;
     page-break-inside: avoid;
@@ -958,8 +963,8 @@ body {
   }
 
   .profile-image {
-    width: 110px;
-    height: 110px;
+    width: 140px;
+    height: 140px;
     font-size: 40px;
   }
 

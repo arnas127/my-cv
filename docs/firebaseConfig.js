@@ -20,22 +20,7 @@ firebase.initializeApp(firebaseConfig);
 // Initialize Firestore
 const db = firebase.firestore();
 
-/**
- * Fetch CV translations by password.
- * - `password` is used as document ID in the `cvs` collection.
- * - Each document should have a field `translations` which is the old CONTENT_TRANSLATIONS object.
- *   Example document data structure:
- *   {
- *     translations: {
- *       en: { ... },
- *       lt: { ... }
- *     }
- *   }
- *
- * Returns:
- *   - object with translations (for all languages) if found
- *   - null if no document exists (wrong password)
- */
+// Fetch CV translations by password.
 window.fetchCvByPassword = async function fetchCvByPassword(password) {
   const docRef = db.collection('cvs').doc(password);
   const snapshot = await docRef.get();
