@@ -24,6 +24,19 @@
   --color-purple-1: #805ad5;
   --color-purple-2: #6b46c1;
 
+  /* Sidebar gradient blob colors (RGB) */
+  --sidebar-grad-1: #1a225d;
+  /* was 18, 113, 255 */
+  --sidebar-grad-2: #361a5d;
+  /* was 221, 74, 255 */
+  --sidebar-grad-3: #4b122c;
+  /* was 100, 220, 255 */
+  --sidebar-grad-4: #13473b;
+  /* was 200, 50, 50 */
+  --sidebar-grad-5: #3c1a5d;
+  /* was 180, 180, 50 */
+
+
   /* Other semantic colors */
   --color-heading: #1a202c;
   --color-summary-text: #4a5568;
@@ -215,6 +228,77 @@ body {
   }
 }
 
+@keyframes sidebar-move-horizontal {
+  0% {
+    transform: translateX(-25%) translateY(-10%);
+  }
+
+  50% {
+    transform: translateX(25%) translateY(10%);
+  }
+
+  100% {
+    transform: translateX(-25%) translateY(-10%);
+  }
+}
+
+@keyframes sidebar-move-vertical {
+  0% {
+    transform: translateY(-25%);
+  }
+
+  50% {
+    transform: translateY(25%);
+  }
+
+  100% {
+    transform: translateY(-25%);
+  }
+}
+
+@keyframes sidebar-move-circle-1 {
+  0% {
+    transform: translate(-20%, -10%) rotate(0deg);
+  }
+
+  50% {
+    transform: translate(10%, 20%) rotate(180deg);
+  }
+
+  100% {
+    transform: translate(-20%, -10%) rotate(360deg);
+  }
+}
+
+@keyframes sidebar-move-circle-2 {
+  0% {
+    transform: translate(10%, -20%) rotate(0deg);
+  }
+
+  50% {
+    transform: translate(-10%, 15%) rotate(180deg);
+  }
+
+  100% {
+    transform: translate(10%, -20%) rotate(360deg);
+  }
+}
+
+@keyframes sidebar-move-diagonal {
+  0% {
+    transform: translate(-15%, -15%);
+  }
+
+  50% {
+    transform: translate(20%, 20%);
+  }
+
+  100% {
+    transform: translate(-15%, -15%);
+  }
+}
+
+
 .error-message {
   color: var(--color-error);
   font-size: 14px;
@@ -349,7 +433,84 @@ body {
   padding: 48px 32px;
   color: var(--color-white);
   z-index: 2;
+
+  /* for animated background */
+  position: relative;
+  overflow: hidden;
 }
+
+/* content wrapper so blobs stay behind everything */
+.sidebar-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* Animated gradient background layer inside sidebar */
+
+.sidebar-gradient-layer {
+  position: absolute;
+  inset: -20%;
+  /* was -30% → slightly closer to real bounds */
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(30px);
+  /* was 40px → less smearing, more visible blobs */
+  opacity: 0.9;
+  mix-blend-mode: screen;
+}
+
+/* Generic blob */
+.sidebar-gradient {
+  position: absolute;
+  width: 120%;
+  /* was 140% → smaller blobs */
+  height: 120%;
+  /* was 140% */
+  top: -10%;
+  /* was -20% */
+  left: -10%;
+  /* was -20% */
+  border-radius: 9999px;
+}
+
+/* Individual blobs with different colors + motions */
+
+.sidebar-gradient--1 {
+  background: radial-gradient(circle at center,
+      var(--sidebar-grad-1) 0,
+      transparent 55%);
+  animation: sidebar-move-vertical 30s ease-in-out infinite;
+}
+
+.sidebar-gradient--2 {
+  background: radial-gradient(circle at center,
+      var(--sidebar-grad-2) 0,
+      transparent 55%);
+  animation: sidebar-move-circle-1 24s linear infinite;
+}
+
+.sidebar-gradient--3 {
+  background: radial-gradient(circle at center,
+      var(--sidebar-grad-3) 0,
+      transparent 55%);
+  animation: sidebar-move-circle-2 40s linear infinite;
+}
+
+.sidebar-gradient--4 {
+  background: radial-gradient(circle at center,
+      var(--sidebar-grad-4) 0,
+      transparent 55%);
+  animation: sidebar-move-horizontal 36s ease-in-out infinite;
+}
+
+.sidebar-gradient--5 {
+  background: radial-gradient(circle at center,
+      var(--sidebar-grad-5) 0,
+      transparent 55%);
+  animation: sidebar-move-diagonal 32s ease-in-out infinite;
+}
+
+
 
 .main-content {
   flex: 1;
@@ -716,6 +877,10 @@ body {
 @media print {
   @page {
     margin: 0;
+  }
+
+  .sidebar-gradient-layer {
+    display: none !important;
   }
 
   #reopenVideoButton,

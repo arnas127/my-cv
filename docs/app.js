@@ -303,13 +303,28 @@ function renderSidebar(container) {
     additionalSection.appendChild(row);
   });
 
-  sidebar.append(
+  // Wrap visible content so gradient layer can sit behind it
+  const sidebarInner = createElement('div', 'sidebar-inner');
+  sidebarInner.append(
     profileSection,
     contactSection,
     skillsSection,
     languagesSection,
     additionalSection
   );
+
+  // Animated gradient background layer (blobs)
+  const gradientLayer = createElement('div', 'sidebar-gradient-layer');
+  ['1', '2', '3', '4', '5'].forEach((suffix) => {
+    const blob = createElement(
+      'div',
+      `sidebar-gradient sidebar-gradient--${suffix}`
+    );
+    gradientLayer.appendChild(blob);
+  });
+
+  // Order matters: background first, then content
+  sidebar.append(gradientLayer, sidebarInner);
   container.appendChild(sidebar);
 }
 
