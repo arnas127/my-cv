@@ -5,6 +5,8 @@ let GLOBAL_PROFILE_IMAGE = null;
 // Filled from Firebase after successful password entry
 let CONTENT_TRANSLATIONS = {};
 
+let timelineObserver = null;
+
 // Helpers
 function getTemplateStrings() {
   return TEMPLATE_TRANSLATIONS[currentLang] || TEMPLATE_TRANSLATIONS.en;
@@ -509,6 +511,52 @@ function renderMainContent(container) {
   container.appendChild(main);
 }
 
+function initTimelineScrollAnimations() {
+  const main = document.querySelector('.main-content');
+  if (!main) return;
+
+  const items = main.querySelectorAll('.timeline-item');
+  if (!items.length) return;
+
+  const prefersReducedMotion =
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // If no IntersectionObserver or user prefers reduced motion -> show all immediately
+  if (!('IntersectionObserver' in window) || prefersReducedMotion) {
+    items.forEach((item) => {
+      item.classList.add('timeline-item--visible');
+    });
+    return;
+  }
+
+  // Clean up previous observer on re-render (language switch, etc.)
+  if (timelineObserver) {
+    timelineObserver.disconnect();
+    timelineObserver = null;
+  }
+
+  timelineObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('timeline-item--visible');
+          timelineObserver.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      threshold: 0.25,
+      root: null,
+      rootMargin: '0px 0px -10% 0px',
+    }
+  );
+
+  items.forEach((item) => {
+    timelineObserver.observe(item);
+  });
+}
+
 function renderCv() {
   const root = document.getElementById('cv-root');
   if (!root) return;
@@ -533,6 +581,7 @@ function renderCv() {
   root.appendChild(cvContainer);
 
   updateLanguageButtonsUi();
+  initTimelineScrollAnimations();
 }
 
 // --- Modal translations ---
