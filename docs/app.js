@@ -250,16 +250,23 @@ function renderSidebar(container) {
   const skillsTitle = createElement('h2', 'section-title', t.sectionSkills);
   skillsSection.appendChild(skillsTitle);
 
-  (c.skills || []).forEach((skill) => {
+  (c.skills || []).forEach((skill, index) => {
     const skillItem = createElement('div', 'skill-item');
     const skillName = createElement('div', 'skill-name', skill.name);
     const skillBar = createElement('div', 'skill-bar');
     const skillProgress = createElement('div', 'skill-progress');
+
+    // final width based on level
     skillProgress.style.width = `${skill.level}%`;
+
+    // staggered animation (0s, 0.08s, 0.16s, ...)
+    skillProgress.style.animationDelay = `${index * 0.08}s`;
+
     skillBar.appendChild(skillProgress);
     skillItem.append(skillName, skillBar);
     skillsSection.appendChild(skillItem);
   });
+
 
   // Languages
   const languagesSection = createElement('div', 'languages-section');

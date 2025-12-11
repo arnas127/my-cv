@@ -19,21 +19,21 @@
   --color-primary: #3182ce;
   --color-primary-dark: #2c5aa0;
   --color-sidebar-bg: #1a365d;
-  --color-accent-1: #667eea;
-  --color-accent-2: #764ba2;
+  --color-accent-1: #5e7bff;
+  --color-accent-2: #8b57c0;
   --color-purple-1: #805ad5;
   --color-purple-2: #6b46c1;
 
   /* Sidebar gradient blob colors (RGB) */
-  --sidebar-grad-1: #1a225d;
+  --sidebar-grad-1: #10153a;
   /* was 18, 113, 255 */
-  --sidebar-grad-2: #361a5d;
+  --sidebar-grad-2: #21103a;
   /* was 221, 74, 255 */
-  --sidebar-grad-3: #4b122c;
+  --sidebar-grad-3: #300c1c;
   /* was 100, 220, 255 */
-  --sidebar-grad-4: #13473b;
+  --sidebar-grad-4: #0d2d25;
   /* was 200, 50, 50 */
-  --sidebar-grad-5: #3c1a5d;
+  --sidebar-grad-5: #300d0d;
   /* was 180, 180, 50 */
 
 
@@ -620,7 +620,7 @@ body {
 
 .job-title {
   font-size: 16px;
-  color: var(--color-gray-400);
+  color: var(--color-gray-300);
   font-weight: 500;
 }
 
@@ -675,6 +675,7 @@ body {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
   overflow: hidden;
+  position: relative;
 }
 
 .skill-progress {
@@ -682,7 +683,38 @@ body {
   background: linear-gradient(90deg, var(--color-accent-1) 0%, var(--color-accent-2) 100%);
   border-radius: 4px;
   transition: width 0.3s ease;
+
+  transform-origin: left center;
+  transform: scaleX(0);
+  /* start empty */
+
+  /* 33s loop: fill (2s) → stay (30s) → empty (1s) */
+  animation: skill-fill 33s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
 }
+
+@keyframes skill-fill {
+  0% {
+    transform: scaleX(0);
+    /* empty */
+  }
+
+  6.06% {
+    transform: scaleX(1);
+    /* filled after 2s (2/33 ≈ 6.06%) */
+  }
+
+  96.97% {
+    transform: scaleX(1);
+    /* stay filled until ~32s (32/33 ≈ 96.97%) */
+  }
+
+  100% {
+    transform: scaleX(0);
+    /* empty again in the last 1s */
+  }
+}
+
+
 
 .languages-section {
   margin-top: 40px;
@@ -708,7 +740,7 @@ body {
 
 .language-level {
   font-size: 12px;
-  color: var(--color-gray-400);
+  color: var(--color-gray-300);
   font-weight: 500;
   text-align: right;
   margin-left: auto;
@@ -736,7 +768,7 @@ body {
 
 .additional-info-value {
   font-size: 12px;
-  color: var(--color-gray-400);
+  color: var(--color-gray-300);
   font-weight: 500;
   text-align: right;
   margin-left: auto;
