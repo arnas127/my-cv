@@ -48,6 +48,15 @@ Steps:
    cvs/<passwordKey>
    ```
 
+The import tool accepts any of these input formats:
+
+- A plain translations map:  
+  `{ "en": { ... }, "lt": { ... } }`
+- An object with a `translations` property:  
+  `{ "translations": { "en": { ... }, "lt": { ... } } }`
+- A full CV document including top‑level fields such as `profileImage`, `allowAsBase`, `useBaseCV`,
+  and `translations` (this is what the CV page actually reads).
+
 Example JSON file is included in:  
 📁 `examples/example-data.json`
 
@@ -99,6 +108,9 @@ In Firestore:
 collections
 └── cvs
     └── <passwordKey>
+        ├── profileImage: "https://…"
+        ├── allowAsBase: true
+        ├── useBaseCV: "cv-base"
         └── translations: { ... }
 ```
 
@@ -131,7 +143,18 @@ The included `import.html` and the app both use Firebase JS SDK over HTTPS — n
 
 ## 📦 JSON Data Format
 
-Your JSON file must contain at least **one language block**: `"en"` or `"lt"` (or both).  
+Each CV is stored as **one document** in the `cvs` collection in Firestore (see schema above).
+
+The import tool accepts any of these input formats:
+
+- A plain translations map:  
+  `{ "en": { ... }, "lt": { ... } }`
+- An object with a `translations` property:  
+  `{ "translations": { "en": { ... }, "lt": { ... } } }`
+- A full CV document including top‑level fields such as `profileImage`, `allowAsBase`, `useBaseCV`,
+  and `translations` (this is what the CV page actually reads).
+
+Internally, the CV page expects at least **one language block**: `"en"` or `"lt"` (or both).  
 **At least one of them is required.**  
 (Other languages are currently **not supported**.)
 
@@ -139,13 +162,24 @@ Your JSON file must contain at least **one language block**: `"en"` or `"lt"` (o
 
 ## 🧱 JSON Structure
 
-Below is the full structure with explanations for each field.
+Below is the full structure for a **full CV document** with explanations for each field.
 
 ```jsonc
 {
+  // --- Top-level CV document (one Firestore document in "cvs" collection) ---
 
   "profileImage": "",         // (optional) URL or base64 "data:image/png;base64,..."
                               // If missing → initials are shown
+
+  "allowAsBase": true,        // (optional) If true, this CV may be used as a "base"
+                              //           for other CVs (company‑specific variants).
+                              //           Default: false.
+
+  "useBaseCV": "cv-base",        // (optional) If present, this CV is a "nested" CV that
+                              //           extends another CV whose key/password is
+                              //           given here. Only one level of nesting is
+                              //           supported.
+
   "translations": {
     "en": {                      // Language code (required: at least one: "en" or "lt")
       "documentTitle": "My CV", // (optional) Title for browser tab & PDF
@@ -218,6 +252,40 @@ Below is the full structure with explanations for each field.
   }
 }
 ```
+
+### Base CV & nested company-specific variants
+
+You can reuse a **base CV** and create **company‑specific variants** without duplicating everything.
+
+- Define a **base CV document** (for example with key/password `cv-base`) and set:
+
+  - `"allowAsBase": true`
+  - _no_ `"useBaseCV"` field
+
+- Define one or more **nested CVs** (for example `cv-google`, `cv-meta`) and set:
+
+  - `"useBaseCV": "cv-base"` to point to the base CV
+  - optional `"profileImage"` override
+  - a `translations` object that overrides / extends the base translations
+
+At runtime the CV page:
+
+- loads the CV document for the password you typed
+- if it has a `"useBaseCV"` and the referenced document:
+  - **exists**
+  - has `"allowAsBase": true`
+  - does **not** itself define `"useBaseCV"` (only one level allowed)
+
+  then it merges them with these rules (per language, e.g. `en`, `lt`):
+
+  - primitive fields (strings, numbers, booleans) in the nested CV **override** the base
+  - objects (like `"contact"`) are merged by key (nested overrides base)
+  - arrays (like `"experiences"`, `"education"`, `"volunteering"`, `"skills"`,
+    `"languages"`, `"additionalInfo"`) are **prepended**:
+
+    `finalArray = nestedItems + baseItems`
+
+If `"useBaseCV"` is missing, invalid, or not allowed as base, the CV document is used **as‑is**.
 
 ---
 

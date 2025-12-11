@@ -77,6 +77,16 @@
       cursor: default;
     }
 
+    /* Secondary button style for "Test data" */
+    .button-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .button-secondary:hover:not([disabled]) {
+      background: #d1d5db;
+    }
+
     .status {
       margin-top: 1rem;
       font-size: 0.9rem;
@@ -98,8 +108,16 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         "Liberation Mono", "Courier New", monospace;
       font-size: 0.8rem;
-      max-height: 200px;
+      max-height: 300px;
       overflow: auto;
+      white-space: pre-wrap;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
     }
   </style>
 </head>
@@ -130,8 +148,14 @@
       </small>
     </div>
 
-    <div class="field">
+    <div class="field button-row">
       <button id="importButton">Import to Firestore</button>
+      <button id="testButton" type="button" class="button-secondary">
+        Test data (merge preview)
+      </button>
+      <button id="copyButton" type="button" class="button-secondary" disabled>
+        Copy data
+      </button>
     </div>
 
     <div id="status" class="status"></div>
@@ -147,6 +171,7 @@
   <script src="firebaseConfig.js"></script>
 
   <script>
+    let lastPreviewJson = null;
     // Simple helper to show status messages
     function setStatus(message, type) {
       const el = document.getElementById("status");
@@ -156,20 +181,286 @@
       if (type === "success") el.classList.add("status--success");
     }
 
-    function setPreview(obj) {
+    // Recursively sort object keys so JSON preview is stable
+    function sortObjectDeep(value) {
+      if (Array.isArray(value)) {
+        return value.map(sortObjectDeep);
+      }
+
+      if (value && typeof value === "object") {
+        const sortedKeys = Object.keys(value).sort();
+        const result = {};
+        sortedKeys.forEach((key) => {
+          result[key] = sortObjectDeep(value[key]);
+        });
+        return result;
+      }
+
+      return value;
+    }
+
+    // Preview helper, now with optional note/meta
+    function setPreview(obj, note) {
       const previewEl = document.getElementById("preview");
+      const copyButton = document.getElementById("copyButton");
+
       if (!obj) {
         previewEl.style.display = "none";
         previewEl.textContent = "";
+        lastPreviewJson = null;
+        if (copyButton) copyButton.disabled = true;
         return;
       }
+
+      // Create a deterministically ordered copy
+      const sorted = sortObjectDeep(obj);
+
+      // Save full sorted JSON for clipboard
+      lastPreviewJson = JSON.stringify(sorted, null, 2);
+      if (copyButton) copyButton.disabled = false;
+
       previewEl.style.display = "block";
-      const keys = Object.keys(obj);
+      const keys = Object.keys(sorted);
+      let header = "Top-level keys (sorted): " + JSON.stringify(keys);
+      if (note) {
+        header = note + "\n\n" + header;
+      }
+
       previewEl.textContent =
-        "Top-level keys: " +
-        JSON.stringify(keys) +
+        header +
         "\n\nPreview:\n" +
-        JSON.stringify(obj, null, 2).slice(0, 2000);
+        lastPreviewJson; // still show same JSON
+    }
+
+
+
+    // Build a CV document from parsed JSON using same expectations as import
+    function buildCvDocFromParsedJson(json) {
+      if (!json || typeof json !== "object" || Array.isArray(json)) {
+        throw new Error("Parsed JSON does not look like an object.");
+      }
+
+      // If JSON already has a "translations" object, treat the whole JSON as the document
+      if (Object.prototype.hasOwnProperty.call(json, "translations")) {
+        const translations = json.translations;
+        if (
+          !translations ||
+          typeof translations !== "object" ||
+          Array.isArray(translations)
+        ) {
+          throw new Error(
+            '"translations" field must be an object (e.g. { "en": {...}, "lt": {...} }).'
+          );
+        }
+        return json;
+      }
+
+      // Legacy: treat JSON as translations map
+      const translations = json;
+      if (
+        !translations ||
+        typeof translations !== "object" ||
+        Array.isArray(translations)
+      ) {
+        throw new Error(
+          "Parsed JSON does not look like an object of translations."
+        );
+      }
+
+      return {
+        translations: translations,
+      };
+    }
+
+    // --- Merge helpers (same semantics as CV UI) ---
+
+    function mergeContentObjects(baseObj, overrideObj) {
+      if (!baseObj && !overrideObj) return {};
+      if (!baseObj)
+        return Array.isArray(overrideObj)
+          ? overrideObj.slice()
+          : { ...overrideObj };
+      if (!overrideObj)
+        return Array.isArray(baseObj)
+          ? baseObj.slice()
+          : { ...baseObj };
+
+      const result = Array.isArray(baseObj) ? baseObj.slice() : { ...baseObj };
+
+      Object.keys(overrideObj).forEach((key) => {
+        const baseVal = baseObj[key];
+        const overrideVal = overrideObj[key];
+
+        // Arrays: items from nested go first, then base
+        if (Array.isArray(overrideVal)) {
+          if (Array.isArray(baseVal)) {
+            result[key] = overrideVal.slice().concat(baseVal);
+          } else {
+            result[key] = overrideVal.slice();
+          }
+          return;
+        }
+
+        // Plain objects: shallow-deep merge
+        if (
+          overrideVal &&
+          typeof overrideVal === "object" &&
+          !Array.isArray(overrideVal)
+        ) {
+          if (
+            baseVal &&
+            typeof baseVal === "object" &&
+            !Array.isArray(baseVal)
+          ) {
+            result[key] = mergeContentObjects(baseVal, overrideVal);
+          } else {
+            result[key] = { ...overrideVal };
+          }
+          return;
+        }
+
+        // Primitives / null: nested overrides base
+        result[key] = overrideVal;
+      });
+
+      return result;
+    }
+
+    function mergeCvTranslations(baseTranslations, overrideTranslations) {
+      const merged = {};
+      const baseKeys = baseTranslations ? Object.keys(baseTranslations) : [];
+      const overrideKeys = overrideTranslations
+        ? Object.keys(overrideTranslations)
+        : [];
+      const allLangs = new Set([...baseKeys, ...overrideKeys]);
+
+      allLangs.forEach((lang) => {
+        const baseT =
+          (baseTranslations && baseTranslations[lang]) || {};
+        const overrideT =
+          (overrideTranslations && overrideTranslations[lang]) || {};
+        merged[lang] = mergeContentObjects(baseT, overrideT);
+      });
+
+      return merged;
+    }
+
+    // Resolve useBaseCV in the import tool (one level of nesting)
+    async function resolveCvForImport(requestedKey, directDoc) {
+      const direct = directDoc || {};
+      const directTranslations = direct.translations || {};
+      const directProfileImage = direct.profileImage || null;
+      const baseKey = direct.useBaseCV;
+
+      const meta = {
+        usedBase: false,
+        baseKey: baseKey || null,
+        baseFound: false,
+        baseAllowAsBase: false,
+        baseHasOwnBase: false,
+        warning: null,
+      };
+
+      // No useBaseCV: just use direct data
+      if (!baseKey) {
+        return {
+          translations: directTranslations,
+          profileImage: directProfileImage,
+          meta,
+        };
+      }
+
+      if (baseKey === requestedKey) {
+        meta.warning = "useBaseCV points to the same key; ignoring useBaseCV.";
+        return {
+          translations: directTranslations,
+          profileImage: directProfileImage,
+          meta,
+        };
+      }
+
+      if (typeof firebase === "undefined" || !firebase.firestore) {
+        meta.warning =
+          "Firebase is not initialized; cannot load useBaseCV from Firestore.";
+        return {
+          translations: directTranslations,
+          profileImage: directProfileImage,
+          meta,
+        };
+      }
+
+      const dbRef = firebase.firestore();
+      let baseSnap;
+      try {
+        baseSnap = await dbRef.collection("cvs").doc(baseKey).get();
+      } catch (e) {
+        console.error("Failed to fetch base CV:", e);
+        meta.warning = "Failed to fetch base CV from Firestore.";
+        return {
+          translations: directTranslations,
+          profileImage: directProfileImage,
+          meta,
+        };
+      }
+
+      if (!baseSnap.exists) {
+        meta.warning = 'Base CV not found for key "' + baseKey + '".';
+        return {
+          translations: directTranslations,
+          profileImage: directProfileImage,
+          meta,
+        };
+      }
+
+      const baseData = baseSnap.data() || {};
+      meta.baseFound = true;
+
+      // Only CVs marked allowAsBase can be used as base
+      if (!baseData.allowAsBase) {
+        meta.warning =
+          'Base CV "' +
+          baseKey +
+          '" exists but allowAsBase is not true; ignoring base.';
+        return {
+          translations: directTranslations,
+          profileImage: directProfileImage,
+          meta,
+        };
+      }
+
+      meta.baseAllowAsBase = true;
+
+      // One level of nesting only
+      if (baseData.useBaseCV) {
+        meta.baseHasOwnBase = true;
+        meta.warning =
+          'Base CV "' +
+          baseKey +
+          '" itself has useBaseCV; nested bases are not supported.';
+        return {
+          translations: directTranslations,
+          profileImage: directProfileImage,
+          meta,
+        };
+      }
+
+      const baseTranslations = baseData.translations || {};
+      const mergedTranslations = mergeCvTranslations(
+        baseTranslations,
+        directTranslations
+      );
+
+      const mergedProfile =
+        directProfileImage || baseData.profileImage || null;
+
+      meta.usedBase = true;
+      meta.warning = null;
+
+      return {
+        translations: mergedTranslations,
+        profileImage: mergedProfile,
+        meta,
+      };
     }
 
     document
@@ -207,72 +498,25 @@
 
         try {
           const text = await file.text();
-          let json;
-
+          let parsed;
           try {
-            json = JSON.parse(text);
+            parsed = JSON.parse(text);
           } catch (e) {
             setStatus("File is not valid JSON: " + e.message, "error");
             importButton.disabled = false;
             return;
           }
 
-          if (!json || typeof json !== "object" || Array.isArray(json)) {
-            setStatus(
-              "Parsed JSON does not look like an object.",
-              "error"
-            );
+          let cvDoc;
+          try {
+            cvDoc = buildCvDocFromParsedJson(parsed);
+          } catch (e) {
+            setStatus(e.message, "error");
             importButton.disabled = false;
             return;
           }
 
-          // NEW LOGIC:
-          // - If JSON already has a "translations" object, treat the whole JSON
-          //   as the Firestore document (supports profileImage, etc).
-          // - Otherwise, treat the JSON itself as translations and wrap it.
-          let cvDoc;
-
-          if (
-            Object.prototype.hasOwnProperty.call(json, "translations")
-          ) {
-            const translations = json.translations;
-            if (
-              !translations ||
-              typeof translations !== "object" ||
-              Array.isArray(translations)
-            ) {
-              setStatus(
-                '"translations" field must be an object (e.g. { "en": {...}, "lt": {...} }).',
-                "error"
-              );
-              importButton.disabled = false;
-              return;
-            }
-
-            // Use JSON as full document (might contain profileImage, etc.)
-            cvDoc = json;
-          } else {
-            // Legacy format: treat whole JSON as translations
-            const translations = json;
-            if (
-              !translations ||
-              typeof translations !== "object" ||
-              Array.isArray(translations)
-            ) {
-              setStatus(
-                "Parsed JSON does not look like an object of translations.",
-                "error"
-              );
-              importButton.disabled = false;
-              return;
-            }
-
-            cvDoc = {
-              translations: translations,
-            };
-          }
-
-          // Show preview of the whole document (including profileImage if present)
+          // Show preview of the raw document (this is exactly what will be stored)
           setPreview(cvDoc);
           setStatus("Uploading to Firestore...", null);
 
@@ -291,6 +535,164 @@
           setStatus("Import failed: " + err.message, "error");
         } finally {
           importButton.disabled = false;
+        }
+      });
+
+    // --- Test data (merged preview) ---
+
+    document
+      .getElementById("testButton")
+      .addEventListener("click", async () => {
+        const passwordInput = document.getElementById("passwordInput");
+        const fileInput = document.getElementById("fileInput");
+        const testButton = document.getElementById("testButton");
+
+        const key = (passwordInput.value || "").trim();
+        const file = fileInput.files[0] || null;
+
+        setStatus("", null);
+        setPreview(null);
+
+        if (!key) {
+          setStatus("Please enter a password/key (document ID).", "error");
+          return;
+        }
+
+        if (typeof firebase === "undefined" || !firebase.firestore) {
+          setStatus(
+            "Firebase is not initialized. Check firebaseConfig.js inclusion.",
+            "error"
+          );
+          return;
+        }
+
+        const dbRef = firebase.firestore();
+        testButton.disabled = true;
+
+        try {
+          let cvDoc;
+          let sourceDescription;
+
+          if (file) {
+            // ---- MODE 1: test the selected JSON file (not yet imported) ----
+            setStatus("Reading file for test...", null);
+            const text = await file.text();
+            let parsed;
+            try {
+              parsed = JSON.parse(text);
+            } catch (e) {
+              setStatus("File is not valid JSON: " + e.message, "error");
+              return;
+            }
+
+            try {
+              cvDoc = buildCvDocFromParsedJson(parsed);
+            } catch (e) {
+              setStatus(e.message, "error");
+              return;
+            }
+
+            sourceDescription =
+              'Source: JSON file (not yet imported) for key "' + key + '".';
+          } else {
+            // ---- MODE 2: test existing Firestore document by key only ----
+            setStatus(
+              'Loading existing CV "cvs/' + key + '" from Firestore for test...',
+              null
+            );
+
+            const snap = await dbRef.collection("cvs").doc(key).get();
+            if (!snap.exists) {
+              setStatus(
+                'No existing document found for key "' + key + '" in collection "cvs".',
+                "error"
+              );
+              return;
+            }
+
+            cvDoc = snap.data() || {};
+            sourceDescription =
+              'Source: existing Firestore document "cvs/' + key + '".';
+          }
+
+          // Resolve with useBaseCV (if any) using same rules as CV UI
+          const resolved = await resolveCvForImport(key, cvDoc);
+
+          const previewDoc = {
+            profileImage: resolved.profileImage || null,
+            translations: resolved.translations || {},
+          };
+
+          const baseKey = cvDoc.useBaseCV;
+          let noteLines = [sourceDescription];
+
+          if (!baseKey) {
+            noteLines.push(
+              'Merged preview for "' +
+              key +
+              '". No useBaseCV specified; this CV will be used as-is.'
+            );
+          } else if (resolved.meta.usedBase) {
+            noteLines.push(
+              'Merged preview for "' +
+              key +
+              '". useBaseCV "' +
+              baseKey +
+              '" was FOUND and USED (allowAsBase: true).'
+            );
+          } else {
+            noteLines.push(
+              'Merged preview for "' +
+              key +
+              '". useBaseCV "' +
+              baseKey +
+              '" was NOT used.'
+            );
+            if (resolved.meta.warning) {
+              noteLines.push("Reason: " + resolved.meta.warning);
+            }
+          }
+
+          setPreview(previewDoc, noteLines.join("\n"));
+          setStatus(
+            "Test merge completed. See merged result in the preview.",
+            "success"
+          );
+        } catch (err) {
+          console.error(err);
+          setStatus("Test failed: " + err.message, "error");
+        } finally {
+          testButton.disabled = false;
+        }
+      });
+
+    document
+      .getElementById("copyButton")
+      .addEventListener("click", async () => {
+        if (!lastPreviewJson) {
+          setStatus("Nothing to copy yet. Run Import or Test first.", "error");
+          return;
+        }
+
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(lastPreviewJson);
+            setStatus("Sorted JSON copied to clipboard.", "success");
+          } else {
+            // Fallback: create a temporary textarea
+            const ta = document.createElement("textarea");
+            ta.value = lastPreviewJson;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+            setStatus("Sorted JSON copied to clipboard.", "success");
+          }
+        } catch (err) {
+          console.error(err);
+          setStatus("Failed to copy to clipboard: " + err.message, "error");
         }
       });
   </script>

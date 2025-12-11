@@ -1,0 +1,23 @@
+{
+  "profileImage": "https://example.com/avatar.jpg",
+  "useBaseCV": "cv-base", // base-cv you want tu use key
+  "translations": {
+    "en": {
+      "documentTitle": "John Doe – Google-focused CV", // overrides title
+      "summary": "Senior full-stack developer focused on large-scale distributed systems.",
+      "experiences": [
+        {
+          "title": "Senior SWE – Google Interview Track",
+          "company": "Self",
+          "date": "2024",
+          "bullets": [
+            "Prepared and solved 200+ LeetCode-style problems",
+            "Focused on systems design for FAANG-style interviews"
+          ]
+        }
+      ]
+      // everything else (contact, languages, etc.) will fall back to base
+    },
+    "lt": {}
+  }
+}

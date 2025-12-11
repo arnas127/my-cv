@@ -94,6 +94,159 @@ function markIntroVideoSeen() {
   }
 }
 
+// Only one level of nesting is supported.
+function mergeContentObjects(baseObj, overrideObj) {
+  if (!baseObj && !overrideObj) return {};
+  if (!baseObj) return Array.isArray(overrideObj) ? overrideObj.slice() : { ...overrideObj };
+  if (!overrideObj) return Array.isArray(baseObj) ? baseObj.slice() : { ...baseObj };
+
+  const result = Array.isArray(baseObj) ? baseObj.slice() : { ...baseObj };
+
+  Object.keys(overrideObj).forEach((key) => {
+    const baseVal = baseObj[key];
+    const overrideVal = overrideObj[key];
+
+    // Arrays: items from nested go first, then base
+    if (Array.isArray(overrideVal)) {
+      if (Array.isArray(baseVal)) {
+        result[key] = overrideVal.slice().concat(baseVal);
+      } else {
+        result[key] = overrideVal.slice();
+      }
+      return;
+    }
+
+    // Plain objects: shallow-deep merge (properties override)
+    if (
+      overrideVal &&
+      typeof overrideVal === 'object' &&
+      !Array.isArray(overrideVal)
+    ) {
+      if (
+        baseVal &&
+        typeof baseVal === 'object' &&
+        !Array.isArray(baseVal)
+      ) {
+        result[key] = mergeContentObjects(baseVal, overrideVal);
+      } else {
+        result[key] = { ...overrideVal };
+      }
+      return;
+    }
+
+    // Primitives / null: nested overrides base
+    result[key] = overrideVal;
+  });
+
+  return result;
+}
+
+function mergeCvTranslations(baseTranslations, overrideTranslations) {
+  const merged = {};
+  const allLangs = new Set([
+    ...Object.keys(baseTranslations || {}),
+    ...Object.keys(overrideTranslations || {}),
+  ]);
+
+  allLangs.forEach((lang) => {
+    const baseT = (baseTranslations && baseTranslations[lang]) || {};
+    const overrideT = (overrideTranslations && overrideTranslations[lang]) || {};
+    merged[lang] = mergeContentObjects(baseT, overrideT);
+  });
+
+  return merged;
+}
+
+/**
+ * Resolve CV data with optional base CV.
+ *
+ * @param {string} requestedKey - the key/password used by the user (e.g. "cv-google")
+ * @param {object} directData - data returned from fetchCvByPassword(requestedKey)
+ *   Expected shape:
+ *     {
+ *       profileImage?: string,
+ *       allowAsBase?: boolean,
+ *       useBaseCV?: string,
+ *       translations: { [lang]: {...} }
+ *     }
+ */
+async function resolveCvDataWithBase(requestedKey, directData) {
+  const direct = directData || {};
+  const directTranslations = direct.translations || {};
+  const directProfile = direct.profileImage || null;
+  const baseKey = direct.useBaseCV;
+
+  // If no useBaseCV reference -> just use this CV as-is
+  if (!baseKey) {
+    return {
+      translations: directTranslations,
+      profileImage: directProfile,
+    };
+  }
+
+  // Prevent self-reference
+  if (baseKey === requestedKey) {
+    console.warn('useBaseCV points to the same CV; ignoring useBaseCV.');
+    return {
+      translations: directTranslations,
+      profileImage: directProfile,
+    };
+  }
+
+  // If fetchCvByPassword is not available, we can't resolve base
+  if (typeof window.fetchCvByPassword !== 'function') {
+    console.warn('fetchCvByPassword is not defined; cannot resolve useBaseCV.');
+    return {
+      translations: directTranslations,
+      profileImage: directProfile,
+    };
+  }
+
+  let baseData = null;
+  try {
+    baseData = await window.fetchCvByPassword(baseKey);
+  } catch (e) {
+    console.error('Failed to fetch base CV for key:', baseKey, e);
+  }
+
+  if (!baseData) {
+    console.warn('Base CV not found for key:', baseKey);
+    return {
+      translations: directTranslations,
+      profileImage: directProfile,
+    };
+  }
+
+  // Only CVs explicitly marked can be used as base
+  if (!baseData.allowAsBase) {
+    console.warn('Referenced base CV is not marked allowAsBase; ignoring useBaseCV.');
+    return {
+      translations: directTranslations,
+      profileImage: directProfile,
+    };
+  }
+
+  // One level of nesting only: ignore if base also has useBaseCV
+  if (baseData.useBaseCV) {
+    console.warn('Nested useBaseCV (base of a base) is not supported; using direct CV only.');
+    return {
+      translations: directTranslations,
+      profileImage: directProfile,
+    };
+  }
+
+  const baseTranslations = baseData.translations || {};
+  const mergedTranslations = mergeCvTranslations(baseTranslations, directTranslations);
+
+  const mergedProfileImage = direct.profileImage || baseData.profileImage || null;
+
+  return {
+    translations: mergedTranslations,
+    profileImage: mergedProfileImage,
+  };
+}
+
+
 // Hide/show language buttons on CV page (floating controls) based on available translations
 function updateLanguageAvailability() {
   const available = getAvailableLanguages();
@@ -925,9 +1078,9 @@ function initPasswordAndVideo() {
     setPasswordLoading(true);
 
     try {
-      const responseData = await window.fetchCvByPassword(enteredPassword);
+      const rawCvData = await window.fetchCvByPassword(enteredPassword);
 
-      if (!responseData) {
+      if (!rawCvData) {
         if (errorMessage) {
           errorMessage.classList.remove('hidden');
         }
@@ -940,8 +1093,11 @@ function initPasswordAndVideo() {
         return;
       }
 
-      CONTENT_TRANSLATIONS = responseData.translations || {};
-      GLOBAL_PROFILE_IMAGE = responseData.profileImage || null;
+      // Merge with base CV if this CV references one
+      const resolved = await resolveCvDataWithBase(enteredPassword, rawCvData);
+
+      CONTENT_TRANSLATIONS = resolved.translations || {};
+      GLOBAL_PROFILE_IMAGE = resolved.profileImage || null;
       cvUnlocked = true;
 
       // Hide password modal now

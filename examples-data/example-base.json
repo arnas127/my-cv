@@ -1,0 +1,30 @@
+{
+  "profileImage": "https://example.com/avatar.jpg",
+  "allowAsBase": true,
+  "translations": {
+    "en": {
+      "documentTitle": "My CV",
+      "videoIntroUrl": "https://www.youtube.com/embed/XXXXXXXXXXX",
+      "fullName": "John Doe",
+      "jobTitle": "Full Stack Developer",
+      "cvUrl": "https://mycv.lt#en",
+      "contact": {
+        "email": "john@example.com",
+        "phone": "+1 555 000 000",
+        "location": "New York, USA"
+      },
+      "skills": [
+        {
+          "name": "JavaScript",
+          "level": 90
+        },
+        {
+          "name": "React",
+          "level": 85
+        }
+      ],
+      "summary": "Full stack developer with 7+ years of experience...",
+    },
+    "lt": {}
+  }
+}
