@@ -7,6 +7,8 @@ let CONTENT_TRANSLATIONS = {};
 
 let timelineObserver = null;
 
+const INTRO_VIDEO_SEEN_KEY = 'cvIntroVideoSeen';
+
 // Helpers
 function getTemplateStrings() {
   return TEMPLATE_TRANSLATIONS[currentLang] || TEMPLATE_TRANSLATIONS.en;
@@ -68,6 +70,28 @@ function getFirstAvailableVideoUrl() {
     }
   }
   return '';
+}
+
+function hasSeenIntroVideo() {
+  try {
+    return (
+      typeof window !== 'undefined' &&
+      window.localStorage &&
+      window.localStorage.getItem(INTRO_VIDEO_SEEN_KEY) === '1'
+    );
+  } catch (e) {
+    return false;
+  }
+}
+
+function markIntroVideoSeen() {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(INTRO_VIDEO_SEEN_KEY, '1');
+    }
+  } catch (e) {
+    // ignore storage errors
+  }
 }
 
 // Hide/show language buttons on CV page (floating controls) based on available translations
@@ -774,6 +798,7 @@ function showLanguageWarningModal(missingLang, fallbackLang) {
 }
 
 // --- After successful login: decide CV vs video ---
+// --- After successful login: decide CV vs video ---
 
 function proceedAfterSuccessfulLogin() {
   const videoModal = document.getElementById('videoModal');
@@ -807,17 +832,40 @@ function proceedAfterSuccessfulLogin() {
   }
 
   // There is at least one video. Prefer current language if it has a URL.
-  const currentVideoUrl =
-    getCurrentLangVideoUrl() || anyVideoUrl;
+  const currentVideoUrl = getCurrentLangVideoUrl() || anyVideoUrl;
 
+  // Always render the CV first
   renderCv();
   updateLanguageAvailability();
 
-  if (videoIframe && currentVideoUrl) {
-    videoIframe.src = currentVideoUrl;
-  }
-  if (videoModal) {
-    videoModal.classList.remove('hidden');
+  const alreadySeen = hasSeenIntroVideo();
+
+  if (!alreadySeen) {
+    // First time in this browser: auto-open video modal
+    if (videoIframe && currentVideoUrl) {
+      videoIframe.src = currentVideoUrl;
+    }
+    if (videoModal) {
+      videoModal.classList.remove('hidden');
+    }
+    if (reopenVideoButton) {
+      // Hide "reopen" while the modal is open
+      reopenVideoButton.classList.add('hidden');
+    }
+    // Remember that we've shown it once in this browser
+    markIntroVideoSeen();
+  } else {
+    // Video was already shown before in this browser:
+    // go straight to CV and allow manual re-watch via button
+    if (videoModal) {
+      videoModal.classList.add('hidden');
+    }
+    if (reopenVideoButton) {
+      reopenVideoButton.classList.remove('hidden');
+    }
+    if (videoIframe) {
+      videoIframe.src = '';
+    }
   }
 }
 

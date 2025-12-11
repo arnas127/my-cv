@@ -23,12 +23,12 @@ const TEMPLATE_TRANSLATIONS = {
     modalPasswordLoading: 'Unlocking...',
 
     // Video modal
-    modalVideoTitle: '📹 Video Introduction',
-    modalVideoSubtitle: 'Please watch my video introduction',
+    modalVideoTitle: 'Introduction',
+    modalVideoSubtitle: 'Short video introduction',
     modalVideoContinueButton: 'Continue to CV',
 
     // Reopen video button
-    modalReopenVideoButton: 'Watch Video Introduction',
+    modalReopenVideoButton: 'Watch Video',
 
     // Default CV URL for EN (used if content translations don't provide one)
     defaultCvUrl: 'mycv.lt',
@@ -66,12 +66,12 @@ const TEMPLATE_TRANSLATIONS = {
     modalPasswordLoading: 'Atrakiname...',
 
     // Video modal
-    modalVideoTitle: '📹 Vaizdo pristatymas',
-    modalVideoSubtitle: 'Prašome peržiūrėti mano vaizdo pristatymą',
+    modalVideoTitle: 'Prisistatymas',
+    modalVideoSubtitle: 'Trumpas video prisistatymas',
     modalVideoContinueButton: 'Tęsti į CV',
 
     // Reopen video button
-    modalReopenVideoButton: 'Žiūrėti vaizdo pristatymą',
+    modalReopenVideoButton: 'Žiūrėti video',
 
     // Default CV URL for LT (used if content translations don't provide one)
     defaultCvUrl: 'mycv.lt',
