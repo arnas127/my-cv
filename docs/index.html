@@ -12,6 +12,9 @@
 <body>
   <!-- Password Modal -->
   <div class="modal-overlay" id="passwordModal">
+    <!-- Shader background canvas -->
+    <canvas id="shaderBackgroundCanvas" class="shader-background-canvas"></canvas>
+
     <div class="modal-content">
       <div class="language-selector">
         <button class="modal-language-button active" data-lang="en" id="modalLangEn">
@@ -133,6 +136,8 @@
   <!-- Translations & app logic -->
   <script src="templateTranslations.js"></script>
   <script src="timelineConfig.js"></script>
+  <!-- WebGL shader background for password modal -->
+  <script src="shaderBackground.js"></script>
   <!-- contentTranslations.js is now in Firestore -->
   <script src="app.js"></script>
 
