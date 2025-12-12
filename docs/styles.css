@@ -1386,6 +1386,24 @@ body {
   }
 }
 
+@media screen and (max-width: 900px) {
+  .sidebar-gradient-layer {
+    filter: blur(20px);
+    opacity: 0.4;
+    mix-blend-mode: normal;
+  }
+
+  .sidebar-gradient {
+    animation: none;
+    /* stop infinite transform animations */
+  }
+
+  /* .skill-progress {
+    transform: none;
+    animation: none;
+  } */
+}
+
 
 /* Very small screens: tweak text & modals & export button */
 

@@ -170,6 +170,8 @@
   <!-- Your existing Firebase config, same file used by CV page -->
   <script src="firebaseConfig.js"></script>
 
+  <script src="cvDataUtils.js"></script>
+
   <script>
     let lastPreviewJson = null;
     // Simple helper to show status messages
@@ -274,78 +276,9 @@
 
     // --- Merge helpers (same semantics as CV UI) ---
 
-    function mergeContentObjects(baseObj, overrideObj) {
-      if (!baseObj && !overrideObj) return {};
-      if (!baseObj)
-        return Array.isArray(overrideObj)
-          ? overrideObj.slice()
-          : { ...overrideObj };
-      if (!overrideObj)
-        return Array.isArray(baseObj)
-          ? baseObj.slice()
-          : { ...baseObj };
 
-      const result = Array.isArray(baseObj) ? baseObj.slice() : { ...baseObj };
-
-      Object.keys(overrideObj).forEach((key) => {
-        const baseVal = baseObj[key];
-        const overrideVal = overrideObj[key];
-
-        // Arrays: items from nested go first, then base
-        if (Array.isArray(overrideVal)) {
-          if (Array.isArray(baseVal)) {
-            result[key] = overrideVal.slice().concat(baseVal);
-          } else {
-            result[key] = overrideVal.slice();
-          }
-          return;
-        }
-
-        // Plain objects: shallow-deep merge
-        if (
-          overrideVal &&
-          typeof overrideVal === "object" &&
-          !Array.isArray(overrideVal)
-        ) {
-          if (
-            baseVal &&
-            typeof baseVal === "object" &&
-            !Array.isArray(baseVal)
-          ) {
-            result[key] = mergeContentObjects(baseVal, overrideVal);
-          } else {
-            result[key] = { ...overrideVal };
-          }
-          return;
-        }
-
-        // Primitives / null: nested overrides base
-        result[key] = overrideVal;
-      });
-
-      return result;
-    }
-
-    function mergeCvTranslations(baseTranslations, overrideTranslations) {
-      const merged = {};
-      const baseKeys = baseTranslations ? Object.keys(baseTranslations) : [];
-      const overrideKeys = overrideTranslations
-        ? Object.keys(overrideTranslations)
-        : [];
-      const allLangs = new Set([...baseKeys, ...overrideKeys]);
-
-      allLangs.forEach((lang) => {
-        const baseT =
-          (baseTranslations && baseTranslations[lang]) || {};
-        const overrideT =
-          (overrideTranslations && overrideTranslations[lang]) || {};
-        merged[lang] = mergeContentObjects(baseT, overrideT);
-      });
-
-      return merged;
-    }
-
-    // Resolve useBaseCV in the import tool (one level of nesting)
+    // Resolve useBaseCV for the import tool (one level of nesting),
+    // delegating the actual merge rules to CvDataUtils.
     async function resolveCvForImport(requestedKey, directDoc) {
       const direct = directDoc || {};
       const directTranslations = direct.translations || {};
@@ -361,24 +294,7 @@
         warning: null,
       };
 
-      // No useBaseCV: just use direct data
-      if (!baseKey) {
-        return {
-          translations: directTranslations,
-          profileImage: directProfileImage,
-          meta,
-        };
-      }
-
-      if (baseKey === requestedKey) {
-        meta.warning = "useBaseCV points to the same key; ignoring useBaseCV.";
-        return {
-          translations: directTranslations,
-          profileImage: directProfileImage,
-          meta,
-        };
-      }
-
+      // No Firebase available: just return direct data, but keep meta
       if (typeof firebase === "undefined" || !firebase.firestore) {
         meta.warning =
           "Firebase is not initialized; cannot load useBaseCV from Firestore.";
@@ -389,76 +305,39 @@
         };
       }
 
-      const dbRef = firebase.firestore();
-      let baseSnap;
-      try {
-        baseSnap = await dbRef.collection("cvs").doc(baseKey).get();
-      } catch (e) {
-        console.error("Failed to fetch base CV:", e);
-        meta.warning = "Failed to fetch base CV from Firestore.";
-        return {
-          translations: directTranslations,
-          profileImage: directProfileImage,
-          meta,
-        };
-      }
+      // Build fetcher used by CvDataUtils.resolveCvDataWithBase
+      const fetchBaseCv = async (key) => {
+        const dbRef = firebase.firestore();
+        let baseSnap;
+        try {
+          baseSnap = await dbRef.collection("cvs").doc(key).get();
+        } catch (e) {
+          console.error("Failed to fetch base CV:", e);
+          meta.warning = "Failed to fetch base CV from Firestore.";
+          return null;
+        }
 
-      if (!baseSnap.exists) {
-        meta.warning = 'Base CV not found for key "' + baseKey + '".';
-        return {
-          translations: directTranslations,
-          profileImage: directProfileImage,
-          meta,
-        };
-      }
+        if (!baseSnap.exists) {
+          meta.warning = 'Base CV not found for key "' + key + '".';
+          return null;
+        }
 
-      const baseData = baseSnap.data() || {};
-      meta.baseFound = true;
+        const baseData = baseSnap.data() || {};
+        meta.baseFound = true;
+        return baseData;
+      };
 
-      // Only CVs marked allowAsBase can be used as base
-      if (!baseData.allowAsBase) {
-        meta.warning =
-          'Base CV "' +
-          baseKey +
-          '" exists but allowAsBase is not true; ignoring base.';
-        return {
-          translations: directTranslations,
-          profileImage: directProfileImage,
-          meta,
-        };
-      }
-
-      meta.baseAllowAsBase = true;
-
-      // One level of nesting only
-      if (baseData.useBaseCV) {
-        meta.baseHasOwnBase = true;
-        meta.warning =
-          'Base CV "' +
-          baseKey +
-          '" itself has useBaseCV; nested bases are not supported.';
-        return {
-          translations: directTranslations,
-          profileImage: directProfileImage,
-          meta,
-        };
-      }
-
-      const baseTranslations = baseData.translations || {};
-      const mergedTranslations = mergeCvTranslations(
-        baseTranslations,
-        directTranslations
+      // Delegate merge / base rules to shared helper
+      const resolved = await CvDataUtils.resolveCvDataWithBase(
+        requestedKey,
+        direct,
+        { fetchBaseCv, meta }
       );
 
-      const mergedProfile =
-        directProfileImage || baseData.profileImage || null;
-
-      meta.usedBase = true;
-      meta.warning = null;
-
       return {
-        translations: mergedTranslations,
-        profileImage: mergedProfile,
+        translations: resolved.translations || directTranslations,
+        profileImage:
+          resolved.profileImage != null ? resolved.profileImage : directProfileImage,
         meta,
       };
     }

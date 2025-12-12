@@ -67,23 +67,23 @@ const TEMPLATE_TRANSLATIONS = {
 
     // Video modal
     modalVideoTitle: 'Prisistatymas',
-    modalVideoSubtitle: 'Trumpas video prisistatymas',
+    modalVideoSubtitle: 'Trumpas vaizdo prisistatymas',
     modalVideoContinueButton: 'Tęsti į CV',
 
     // Reopen video button
-    modalReopenVideoButton: 'Žiūrėti video',
+    modalReopenVideoButton: 'Žiūrėti vaizdo įrašą',
 
     // Default CV URL for LT (used if content translations don't provide one)
     defaultCvUrl: 'mycv.lt',
 
     // Language warning modal
-    languageWarningUnavailableMessage: 'Lietuvių kalbos versija negalima',
+    languageWarningUnavailableMessage: 'Lietuviška versija negalima',
     languageWarningUnavailableButton: 'Tęsti',
 
     // iOS export modal
     iosExportTitle: 'PDF išsaugojimas iPhone telefone',
     iosExportSubtitle:
-      'iPhone telefone naudokite naršyklės Bendrinimo meniu, pasirinkite Spausdinti, tada priartinkite peržiūrą ir išsaugokite arba pasidalykite ją kaip PDF.',
+      'iPhone telefone naudokite naršyklės bendrinimo meniu, pasirinkite Spausdinti, tada priartinkite peržiūrą ir išsaugokite arba pasidalykite ją kaip PDF.',
     iosExportButton: 'Gerai',
   }
 };
