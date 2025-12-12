@@ -583,14 +583,14 @@ body {
   padding: 48px 40px;
   position: relative;
   background: var(--color-white);
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* static grid background with soft fade, no JS, no parallax */
 .main-content::before {
   content: "";
   position: absolute;
-  inset: -40px;
+  inset: -0px;
   z-index: 0;
   pointer-events: none;
   opacity: 0.75;
@@ -853,7 +853,7 @@ body {
   z-index: 5;
   display: block;
   /* no background, so grid shows through */
-  background: transparent;
+  background: var(--color-white);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }

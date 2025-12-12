@@ -40,7 +40,7 @@ const TEMPLATE_TRANSLATIONS = {
     // iOS export modal
     iosExportTitle: 'Save as PDF on iPhone',
     iosExportSubtitle:
-      'On iPhone, use the browser\'s Share menu, choose Print, then zoom the preview and save or share it as a PDF.',
+      'On iPhone, open the browser\'s Share menu, choose Print, then zoom the preview and save or share it as a PDF.',
     iosExportButton: 'OK',
   },
   lt: {
