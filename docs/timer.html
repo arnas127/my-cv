@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en" class="h-full">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown Timer</title>
+  <style>
+    :root {
+      --bg-color: #0f0e17;
+      --surface-color: #1c1b29;
+      --text-color: #fffffe;
+      --primary-color: #5a3eb0;
+      --secondary-color: #2e2f3e;
+      --stop-color: #8b1e1e;
+      --font-family: Inter;
+      --font-size: 16px;
+      --timer-font-size: clamp(32px, 18vmin, 320px);
+    }
+
+    body {
+      box-sizing: border-box;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    @keyframes blink {
+
+      0%,
+      50% {
+        opacity: 1;
+      }
+
+      51%,
+      100% {
+        opacity: 0.3;
+      }
+    }
+
+    .blink {
+      animation: blink 1s infinite;
+    }
+
+    @keyframes slideOutLeft {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateX(-50%);
+        opacity: 0;
+      }
+    }
+
+    @keyframes slideInFromRight {
+      from {
+        transform: translateX(50%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOutRight {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateX(50%);
+        opacity: 0;
+      }
+    }
+
+    @keyframes slideInFromLeft {
+      from {
+        transform: translateX(-50%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .slide-out-left {
+      animation: slideOutLeft 0.4s ease-in-out forwards;
+    }
+
+    .slide-in-right {
+      animation: slideInFromRight 0.4s ease-in-out forwards;
+    }
+
+    .slide-out-right {
+      animation: slideOutRight 0.4s ease-in-out forwards;
+    }
+
+    .slide-in-left {
+      animation: slideInFromLeft 0.4s ease-in-out forwards;
+    }
+
+    /* Custom number input styling */
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      opacity: 1;
+      height: 100%;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    /* Custom spin button container */
+    .number-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: stretch;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .number-input-wrapper input {
+      width: 100%;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-right: none !important;
+    }
+
+    .spin-buttons {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .spin-button {
+      width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+      flex: 1;
+    }
+
+    .spin-button:first-child {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .spin-button:hover {
+      opacity: 0.8;
+    }
+
+    .spin-button:active {
+      transform: scale(0.95);
+    }
+  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @view-transition {
+      navigation: auto;
+    }
+  </style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+</head>
+
+<body class="h-full overflow-auto">
+  <div id="app" class="h-full w-full"></div>
+  <script>
+    const defaultConfig = {
+      background_color: "#0f0e17",
+      surface_color: "#1c1b29",
+      text_color: "#fffffe",
+      primary_action_color: "#7f5af0",
+      secondary_action_color: "#2e2f3e",
+      stop_button_color: "#8b1e1e",
+      timer_title: "Timer",
+      start_button_text: "Start Timer",
+      font_family: "Inter",
+      font_size: 16
+    };
+
+    let config = { ...defaultConfig };
+    let timerInterval = null;
+    let remainingSeconds = 0;
+    let isPaused = false;
+    let isNegative = false;
+    let initialTotalSeconds = 0;
+    let resizeListenerAttached = false;
+
+    function formatTime(seconds, showHours) {
+      const absSeconds = Math.abs(seconds);
+      const hours = Math.floor(absSeconds / 3600);
+      const minutes = Math.floor((absSeconds % 3600) / 60);
+      const secs = absSeconds % 60;
+
+      const prefix = seconds < 0 ? '-' : '';
+
+      if (showHours) {
+        return `${prefix}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      } else {
+        return `${prefix}${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      }
+    }
+
+    function startTimer(hours, minutes, seconds) {
+      const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+
+      if (totalSeconds <= 0 || totalSeconds > 86400) {
+        return;
+      }
+
+      remainingSeconds = totalSeconds;
+      initialTotalSeconds = totalSeconds;
+      isNegative = false;
+      isPaused = false;
+
+      const formContainer = document.getElementById('form-container');
+      const timerContainer = document.getElementById('timer-container');
+
+      formContainer.classList.add('slide-out-left');
+
+      setTimeout(() => {
+        formContainer.classList.add('hidden');
+        formContainer.classList.remove('slide-out-left');
+        timerContainer.classList.remove('hidden');
+        timerContainer.classList.add('slide-in-right');
+        requestAnimationFrame(updateTimerFontSize);
+
+        setTimeout(() => {
+          timerContainer.classList.remove('slide-in-right');
+        }, 400);
+      }, 400);
+
+      timerInterval = setInterval(() => {
+        if (!isPaused) {
+          remainingSeconds--;
+
+          if (remainingSeconds < 0 && !isNegative) {
+            isNegative = true;
+            document.getElementById('timer-display').classList.add('blink');
+          }
+
+          updateTimerDisplay();
+        }
+      }, 1000);
+
+      updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+      const display = document.getElementById('timer-display');
+
+      const showHours = initialTotalSeconds >= 3600;
+      display.textContent = formatTime(remainingSeconds, showHours);
+      display.style.color = remainingSeconds < 0 ? '#ef4444' : 'var(--text-color)';
+      updateTimerFontSize();
+    }
+
+    function updateTimerFontSize() {
+      const timerContainer = document.getElementById('timer-container');
+      const timerDisplay = document.getElementById('timer-display');
+
+      if (!timerContainer || !timerDisplay || timerContainer.classList.contains('hidden')) {
+        return;
+      }
+
+      const controls = document.getElementById('timer-controls');
+      const containerStyles = window.getComputedStyle(timerContainer);
+      const paddingX = (parseFloat(containerStyles.paddingLeft) || 0) +
+        (parseFloat(containerStyles.paddingRight) || 0);
+      const paddingY = (parseFloat(containerStyles.paddingTop) || 0) +
+        (parseFloat(containerStyles.paddingBottom) || 0);
+
+      let availableWidth = timerContainer.clientWidth - paddingX;
+      let availableHeight = timerContainer.clientHeight - paddingY;
+
+      if (controls) {
+        const controlsStyles = window.getComputedStyle(controls);
+        const controlsMarginTop = parseFloat(controlsStyles.marginTop) || 0;
+        availableHeight -= controls.getBoundingClientRect().height + controlsMarginTop;
+      }
+
+      const displayStyles = window.getComputedStyle(timerDisplay);
+      const displayMarginBottom = parseFloat(displayStyles.marginBottom) || 0;
+      availableHeight -= displayMarginBottom;
+
+      if (availableWidth <= 0 || availableHeight <= 0) {
+        return;
+      }
+
+      const testSize = 100;
+      timerDisplay.style.fontSize = `${testSize}px`;
+
+      const displayWidth = timerDisplay.scrollWidth;
+      const displayHeight = timerDisplay.scrollHeight;
+
+      if (displayWidth === 0 || displayHeight === 0) {
+        return;
+      }
+
+      const scale = Math.min(availableWidth / displayWidth, availableHeight / displayHeight);
+      const nextSize = Math.max(12, Math.floor(testSize * scale));
+      timerDisplay.style.fontSize = `${nextSize}px`;
+    }
+
+    function pauseTimer() {
+      isPaused = !isPaused;
+      const pauseButton = document.getElementById('pause-button');
+      const pausePath = pauseButton.querySelector('path');
+
+      if (isPaused) {
+        pausePath.setAttribute('d', 'M8 5v14l11-7z');
+      } else {
+        pausePath.setAttribute('d', 'M6 4h4v16H6V4zm8 0h4v16h-4V4z');
+      }
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      remainingSeconds = 0;
+      isNegative = false;
+      isPaused = false;
+      initialTotalSeconds = 0;
+
+      const formContainer = document.getElementById('form-container');
+      const timerContainer = document.getElementById('timer-container');
+      const timerDisplay = document.getElementById('timer-display');
+
+      timerDisplay.classList.remove('blink');
+      timerContainer.classList.add('slide-out-right');
+
+      setTimeout(() => {
+        timerContainer.classList.add('hidden');
+        timerContainer.classList.remove('slide-out-right');
+        formContainer.classList.remove('hidden');
+        formContainer.classList.add('slide-in-left');
+
+        document.getElementById('hours').value = '0';
+        document.getElementById('minutes').value = '0';
+        document.getElementById('seconds').value = '0';
+
+        setTimeout(() => {
+          formContainer.classList.remove('slide-in-left');
+        }, 400);
+      }, 400);
+    }
+
+    function incrementValue(inputId) {
+      const input = document.getElementById(inputId);
+      const currentValue = parseInt(input.value) || 0;
+      input.value = currentValue + 1;
+    }
+
+    function decrementValue(inputId) {
+      const input = document.getElementById(inputId);
+      const currentValue = parseInt(input.value) || 0;
+      if (currentValue > 0) {
+        input.value = currentValue - 1;
+      }
+    }
+
+    function renderApp() {
+      const app = document.getElementById('app');
+      const backgroundColor = config.background_color || defaultConfig.background_color;
+      const surfaceColor = config.surface_color || defaultConfig.surface_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+      const primaryColor = config.primary_action_color || defaultConfig.primary_action_color;
+      const secondaryColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+      const stopButtonColor = config.stop_button_color || defaultConfig.stop_button_color;
+      const fontFamily = config.font_family || defaultConfig.font_family;
+      const baseSize = config.font_size || defaultConfig.font_size;
+      const timerTitle = config.timer_title || defaultConfig.timer_title;
+      const startButtonText = config.start_button_text || defaultConfig.start_button_text;
+
+      // Update CSS variables
+      document.documentElement.style.setProperty('--bg-color', backgroundColor);
+      document.documentElement.style.setProperty('--surface-color', surfaceColor);
+      document.documentElement.style.setProperty('--text-color', textColor);
+      document.documentElement.style.setProperty('--primary-color', primaryColor);
+      document.documentElement.style.setProperty('--secondary-color', secondaryColor);
+      document.documentElement.style.setProperty('--stop-color', stopButtonColor);
+      document.documentElement.style.setProperty('--font-family', fontFamily);
+      document.documentElement.style.setProperty('--font-size', `${baseSize}px`);
+
+      app.style.backgroundColor = 'var(--bg-color)';
+      app.style.fontFamily = `var(--font-family), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+
+      app.innerHTML = `
+        <!-- Form Container -->
+        <div id="form-container" class="flex items-center justify-center h-full w-full p-8">
+          <div class="w-full max-w-md">
+            <h1 id="title" class="text-center mb-12" style="color: var(--text-color); font-size: ${baseSize * 2.5}px; font-weight: 700;">${timerTitle}</h1>
+            
+            <form id="timer-form" class="space-y-6">
+              <div class="flex gap-4">
+                <div class="flex-1">
+                  <label for="hours" class="block mb-2" style="color: var(--text-color); font-size: ${baseSize * 0.875}px;">Hours</label>
+                  <div class="number-input-wrapper">
+                    <input 
+                      type="number" 
+                      id="hours" 
+                      min="0" 
+                      value="0"
+                      class="w-full px-4 py-3 rounded-lg text-center"
+                      style="background-color: var(--surface-color); color: var(--text-color); border: 2px solid var(--primary-color); font-size: ${baseSize * 1.5}px; font-weight: 600;"
+                    >
+                    <div class="spin-buttons">
+                      <div class="spin-button" data-input="hours" data-action="up" style="background-color: var(--primary-color);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--text-color)">
+                          <path d="M7 14l5-5 5 5z"/>
+                        </svg>
+                      </div>
+                      <div class="spin-button" data-input="hours" data-action="down" style="background-color: var(--primary-color);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--text-color)">
+                          <path d="M7 10l5 5 5-5z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <label for="minutes" class="block mb-2" style="color: var(--text-color); font-size: ${baseSize * 0.875}px;">Minutes</label>
+                  <div class="number-input-wrapper">
+                    <input 
+                      type="number" 
+                      id="minutes" 
+                      min="0" 
+                      value="0"
+                      class="w-full px-4 py-3 rounded-lg text-center"
+                      style="background-color: var(--surface-color); color: var(--text-color); border: 2px solid var(--primary-color); font-size: ${baseSize * 1.5}px; font-weight: 600;"
+                    >
+                    <div class="spin-buttons">
+                      <div class="spin-button" data-input="minutes" data-action="up" style="background-color: var(--primary-color);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--text-color)">
+                          <path d="M7 14l5-5 5 5z"/>
+                        </svg>
+                      </div>
+                      <div class="spin-button" data-input="minutes" data-action="down" style="background-color: var(--primary-color);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--text-color)">
+                          <path d="M7 10l5 5 5-5z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex-1">
+                  <label for="seconds" class="block mb-2" style="color: var(--text-color); font-size: ${baseSize * 0.875}px;">Seconds</label>
+                  <div class="number-input-wrapper">
+                    <input 
+                      type="number" 
+                      id="seconds" 
+                      min="0" 
+                      value="0"
+                      class="w-full px-4 py-3 rounded-lg text-center"
+                      style="background-color: var(--surface-color); color: var(--text-color); border: 2px solid var(--primary-color); font-size: ${baseSize * 1.5}px; font-weight: 600;"
+                    >
+                    <div class="spin-buttons">
+                      <div class="spin-button" data-input="seconds" data-action="up" style="background-color: var(--primary-color);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--text-color)">
+                          <path d="M7 14l5-5 5 5z"/>
+                        </svg>
+                      </div>
+                      <div class="spin-button" data-input="seconds" data-action="down" style="background-color: var(--primary-color);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--text-color)">
+                          <path d="M7 10l5 5 5-5z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <button 
+                type="submit"
+                class="w-full py-4 rounded-lg font-semibold transition-all hover:opacity-90"
+                style="background-color: var(--primary-color); color: var(--text-color); font-size: ${baseSize * 1.125}px;"
+              >
+                ${startButtonText}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Timer Display Container -->
+        <div id="timer-container" class="hidden flex flex-col items-center justify-center h-full w-full p-8">
+          <div id="timer-display" class="mb-12" style="color: var(--text-color); font-size: var(--timer-font-size); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1; white-space: nowrap; text-align: center; display: inline-block; max-width: 100%;">
+            00:00:00
+          </div>
+          
+          <div id="timer-controls" class="flex gap-6">
+            <button 
+              id="pause-button"
+              class="p-6 rounded-full transition-all hover:opacity-80"
+              style="background-color: var(--secondary-color);"
+              aria-label="Pause"
+            >
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="var(--text-color)">
+                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+              </svg>
+            </button>
+            
+            <button 
+              id="stop-button"
+              class="p-6 rounded-full transition-all hover:opacity-80"
+              style="background-color: var(--stop-color);"
+              aria-label="Stop"
+            >
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="var(--text-color)">
+                <path d="M6 6h12v12H6z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Spin button listeners
+      document.querySelectorAll('.spin-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+          const inputId = button.getAttribute('data-input');
+          const action = button.getAttribute('data-action');
+
+          if (action === 'up') {
+            incrementValue(inputId);
+          } else {
+            decrementValue(inputId);
+          }
+        });
+      });
+
+      document.getElementById('timer-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const hours = parseInt(document.getElementById('hours').value) || 0;
+        const minutes = parseInt(document.getElementById('minutes').value) || 0;
+        const seconds = parseInt(document.getElementById('seconds').value) || 0;
+
+        const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+
+        if (totalSeconds === 0) return;
+
+        if (totalSeconds > 86400) {
+          const errorMsg = document.createElement('div');
+          errorMsg.textContent = 'Maximum duration is 24 hours';
+          errorMsg.style.color = 'var(--primary-color)';
+          errorMsg.style.fontSize = `${baseSize * 0.875}px`;
+          errorMsg.style.textAlign = 'center';
+          errorMsg.style.marginTop = '12px';
+          errorMsg.id = 'error-msg';
+
+          const existingError = document.getElementById('error-msg');
+          if (existingError) existingError.remove();
+
+          document.getElementById('timer-form').appendChild(errorMsg);
+
+          setTimeout(() => errorMsg.remove(), 3000);
+          return;
+        }
+
+        startTimer(hours, minutes, seconds);
+      });
+
+      document.getElementById('pause-button').addEventListener('click', pauseTimer);
+      document.getElementById('stop-button').addEventListener('click', stopTimer);
+      requestAnimationFrame(updateTimerFontSize);
+
+      if (!resizeListenerAttached) {
+        window.addEventListener('resize', updateTimerFontSize);
+        resizeListenerAttached = true;
+      }
+    }
+
+    async function onConfigChange(newConfig) {
+      Object.assign(config, newConfig);
+      renderApp();
+    }
+
+    const capabilities = {
+      recolorables: [
+        {
+          get: () => config.background_color || defaultConfig.background_color,
+          set: (value) => {
+            config.background_color = value;
+            window.elementSdk.setConfig({ background_color: value });
+          }
+        },
+        {
+          get: () => config.surface_color || defaultConfig.surface_color,
+          set: (value) => {
+            config.surface_color = value;
+            window.elementSdk.setConfig({ surface_color: value });
+          }
+        },
+        {
+          get: () => config.text_color || defaultConfig.text_color,
+          set: (value) => {
+            config.text_color = value;
+            window.elementSdk.setConfig({ text_color: value });
+          }
+        },
+        {
+          get: () => config.primary_action_color || defaultConfig.primary_action_color,
+          set: (value) => {
+            config.primary_action_color = value;
+            window.elementSdk.setConfig({ primary_action_color: value });
+          }
+        },
+        {
+          get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+          set: (value) => {
+            config.secondary_action_color = value;
+            window.elementSdk.setConfig({ secondary_action_color: value });
+          }
+        },
+        {
+          get: () => config.stop_button_color || defaultConfig.stop_button_color,
+          set: (value) => {
+            config.stop_button_color = value;
+            window.elementSdk.setConfig({ stop_button_color: value });
+          }
+        }
+      ],
+      borderables: [],
+      fontEditable: {
+        get: () => config.font_family || defaultConfig.font_family,
+        set: (value) => {
+          config.font_family = value;
+          window.elementSdk.setConfig({ font_family: value });
+        }
+      },
+      fontSizeable: {
+        get: () => config.font_size || defaultConfig.font_size,
+        set: (value) => {
+          config.font_size = value;
+          window.elementSdk.setConfig({ font_size: value });
+        }
+      }
+    };
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["timer_title", config.timer_title || defaultConfig.timer_title],
+        ["start_button_text", config.start_button_text || defaultConfig.start_button_text]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: () => capabilities,
+        mapToEditPanelValues
+      });
+    }
+
+    renderApp();
+  </script>
+
+</html>
