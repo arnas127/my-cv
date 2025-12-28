@@ -215,7 +215,69 @@
     let isPaused = false;
     let isNegative = false;
     let initialTotalSeconds = 0;
-    let resizeListenerAttached = false;
+    let resizeListenerAttached = false; let wakeLock = null;
+    let wakeLockListenersAttached = false;
+
+    async function requestWakeLock() {
+      // Feature check
+      if (!("wakeLock" in navigator) || !navigator.wakeLock) return;
+
+      // Already held?
+      if (wakeLock && wakeLock.released === false) return;
+
+      try {
+        wakeLock = await navigator.wakeLock.request("screen"); // returns WakeLockSentinel :contentReference[oaicite:3]{index=3}
+        // Optional debug:
+        // console.log("Wake Lock acquired");
+
+        wakeLock.addEventListener("release", () => {
+          // console.log("Wake Lock released");
+          wakeLock = null;
+        });
+      } catch (err) {
+        // Common reasons: not HTTPS, battery saver, browser policy, etc.
+        console.warn("Wake Lock request failed:", err);
+        wakeLock = null;
+      }
+    }
+
+    async function releaseWakeLock() {
+      if (!wakeLock) return;
+      try {
+        await wakeLock.release();
+      } catch (err) {
+        // Ignore
+      } finally {
+        wakeLock = null;
+      }
+    }
+
+    function attachWakeLockListenersOnce() {
+      if (wakeLockListenersAttached) return;
+
+      // Enter/exit fullscreen
+      document.addEventListener("fullscreenchange", async () => {
+        if (document.fullscreenElement) {
+          await requestWakeLock();
+        } else {
+          await releaseWakeLock();
+        }
+      }); // :contentReference[oaicite:4]{index=4}
+
+      // Re-acquire when returning to the page (wake locks can be released when hidden)
+      document.addEventListener("visibilitychange", async () => {
+        if (document.visibilityState === "visible" && document.fullscreenElement) {
+          await requestWakeLock();
+        }
+      }); // :contentReference[oaicite:5]{index=5}
+
+      // Cleanup on navigation away
+      window.addEventListener("pagehide", () => {
+        releaseWakeLock();
+      });
+
+      wakeLockListenersAttached = true;
+    }
 
     function formatTime(seconds, showHours) {
       const absSeconds = Math.abs(seconds);
@@ -390,13 +452,19 @@
       }
     }
 
-    function toggleFullscreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-          console.error('Error attempting to enable fullscreen:', err);
-        });
-      } else {
-        document.exitFullscreen();
+    async function toggleFullscreen() {
+      try {
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen();
+          // Not strictly required because fullscreenchange will fire,
+          // but this can help some browsers acquire immediately:
+          await requestWakeLock();
+        } else {
+          await document.exitFullscreen();
+          await releaseWakeLock();
+        }
+      } catch (err) {
+        console.error("Error attempting to toggle fullscreen:", err);
       }
     }
 
@@ -616,6 +684,7 @@
       document.getElementById('stop-button').addEventListener('click', stopTimer);
       document.getElementById('fullscreen-button').addEventListener('click', toggleFullscreen);
       requestAnimationFrame(updateTimerFontSize);
+      attachWakeLockListenersOnce();
 
       if (!resizeListenerAttached) {
         window.addEventListener('resize', updateTimerFontSize);
