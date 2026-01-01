@@ -1,0 +1,15 @@
+url: ""
+baseurl: ""
+title: ""
+description: ""
+
+theme: null
+
+exclude:
+  - Readme.md
+  - .gitignore
+  - Gemfile
+  - Gemfile.lock
+  - examples-data
+  - templates
+  - todo.md

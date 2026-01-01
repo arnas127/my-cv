@@ -1,0 +1,51 @@
+---
+layout: default
+title: "CV portal"
+permalink: /404.html
+---
+
+<style type="text/css" media="screen">
+  .container {
+    margin: 10px auto;
+    max-width: 600px;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 30px 0;
+    font-size: 4em;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+</style>
+
+<div class="container">
+  <h1>404</h1>
+
+  <p><strong>Page not found :(</strong></p>
+  <p>The requested page could not be found.</p>
+  <p>You about to be redirected</p>
+  <a href="/preview">View CV</a>
+</div>
+
+<script>
+  (function () {
+    // ✅ Set your custom domain here (include https://)
+    const TARGET_ORIGIN = "/preview";
+
+    const { origin, pathname, search, hash } = window.location;
+
+    console.log(origin, pathname, search, hash);
+
+
+    // Avoid redirect loop if already on the target domain
+    if (pathname !== TARGET_ORIGIN) {
+      const newUrl = origin + TARGET_ORIGIN;
+
+      // ✅ Wait 5 seconds, then redirect
+      setTimeout(function () {
+        window.location.replace(TARGET_ORIGIN);
+      }, 5000);
+    }
+  })();
+</script>

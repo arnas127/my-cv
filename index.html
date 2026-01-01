@@ -1,0 +1,27 @@
+---
+layout: default
+title: "CV portal"
+---
+
+<h2>mycv.lt atsinaujina</h2>
+<p>Tuoj būsite nukreipti į CV peržiūros puslapį</p>
+<a href="/preview">Peržiūrėti CV</a>
+
+<script>
+  (function () {
+    // ✅ Set your custom domain here (include https://)
+    const TARGET_ORIGIN = "/preview";
+
+    const { origin, pathname, search, hash } = window.location;
+
+    // Avoid redirect loop if already on the target domain
+    if (pathname !== TARGET_ORIGIN) {
+      const newUrl = origin + TARGET_ORIGIN;
+
+      // ✅ Wait 5 seconds, then redirect
+      setTimeout(function () {
+        window.location.replace(newUrl);
+      }, 5000);
+    }
+  })();
+</script>
